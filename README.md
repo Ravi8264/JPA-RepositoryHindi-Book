@@ -1541,8 +1541,7 @@ findByCompanyOrderByPriceAsc("Novavax")
 
 **Result:**
 
-- Novavax (1350)
-- Nuvaxovid (from Novavax, 1350)
+- Novavax, Nuvaxovid
 
 #### 5. Vaccines where company ends with "Institute"
 
@@ -1682,9 +1681,9 @@ findByCompanyEndingWith("Institute")
 | EndingWith   | `findByCompanyEndingWith("Institute")`                 | Company name Institute pe end hone wale           |
 | Containing   | `findByCompanyContaining("Biotech")`                   | Company name me Biotech word hone wale            |
 | OrderBy      | `findByCompanyOrderByPriceAsc("Novavax")`              | Novavax company ke vaccines ko price ascending me |
-| Not          | `findByCompanyNot("Pfizer-BioNTech")`                  | Sare vaccines except Pfizer-BioNTech              |
-| In           | `findByCompanyIn(["Moderna Inc.", "Pfizer-BioNTech"])` | Moderna aur Pfizer ke vaccines                    |
-| IgnoreCase   | `findByCompanyIgnoreCase("pfizer-biontech")`           | Company name case insensitive match               |
+| Not          | `findByCompanyNot("Pfizer-BioNTech")`                  | Sare vaccines except Pfizer                       |
+| In           | `findByCompanyIn(["Moderna Inc.", "Pfizer-BioNTech"])` | Moderna, Pfizer                                   |
+| IgnoreCase   | `findByCompanyIgnoreCase("pfizer-biontech")`           | Pfizer                                            |
 
 ### ✅ Step-3: Find karke Real Result Table (Direct Output)
 
@@ -1709,3 +1708,420 @@ findByCompanyEndingWith("Institute")
 | Table-1 | Clean Vaccine Data                   |
 | Table-2 | Method ka use aur kya karega         |
 | Table-3 | Actual findBy queries ka real output |
+
+## 📚 Chapter 4: Projections - Full Simple Notes + Example
+
+### 4.1 Projections Kya Hota Hai?
+
+**Simple:**
+
+- Normally jab query chalti hai, pura entity (full object) fetch hota hai.
+- **Projection** ka matlab hota hai:  
+  ➔ **Sirf kuch fields fetch karna**, na ki poora object.
+- **Performance fast hoti hai** aur **memory bachti hai**.
+
+### 4.2 Basic Example
+
+Entity:
+
+```java
+class Person {
+    UUID id;
+    String firstname;
+    String lastname;
+    Address address;
+}
+class Address {
+    String zipCode;
+    String city;
+    String street;
+}
+```
+
+Repository:
+
+```java
+interface PersonRepository extends Repository<Person, UUID> {
+    Collection<Person> findByLastname(String lastname);
+}
+```
+
+🔴 Problem: Poora Person object aayega, but mujhe sirf firstname + lastname chahiye.
+
+✅ Solution: **Projections**
+
+### 4.3 Types of Projections
+
+| Type                     | Example                                                 | Notes                |
+| :----------------------- | :------------------------------------------------------ | :------------------- |
+| Interface-based          | `interface NamesOnly`                                   | Best: Simple         |
+| Class-based (DTOs)       | `record NamesOnly(...)`                                 | Good for performance |
+| Open Projection (@Value) | `@Value("#{target.firstname + ' ' + target.lastname}")` | Customize value      |
+| Dynamic Projection       | `<T> Collection<T> findByLastname(...)`                 | Decide at runtime    |
+| Nested Projections       | `interface AddressSummary` inside `PersonSummary`       | Fetch nested fields  |
+
+### 4.4 Interface-Based Projection
+
+```java
+interface NamesOnly {
+    String getFirstname();
+    String getLastname();
+}
+```
+
+Repository:
+
+```java
+interface PersonRepository extends Repository<Person, UUID> {
+    Collection<NamesOnly> findByLastname(String lastname);
+}
+```
+
+✅ Sirf firstname, lastname return honge, **poora Person object nahi**.
+
+### 4.5 Nested Interface Projection
+
+```java
+interface PersonSummary {
+    String getFirstname();
+    String getLastname();
+    AddressSummary getAddress();
+
+    interface AddressSummary {
+        String getCity();
+    }
+}
+```
+
+✅ Yahan `PersonSummary` ke andar `AddressSummary` hai. Address ka sirf city milega.
+
+### 4.6 Closed vs Open Projection
+
+| Type              | Meaning                             | Example                                                 |
+| :---------------- | :---------------------------------- | :------------------------------------------------------ |
+| Closed Projection | Fields exactly match entity fields. | `String getFirstname()`                                 |
+| Open Projection   | Fields dynamically bante hain.      | `@Value("#{target.firstname + ' ' + target.lastname}")` |
+
+### 4.7 Open Projection Example (@Value)
+
+```java
+interface NamesOnly {
+    @Value("#{target.firstname + ' ' + target.lastname}")
+    String getFullName();
+}
+```
+
+✅ Yeh **dynamic string** banayega:  
+Example → "Ravi Kumar"
+
+### 4.8 Default Method in Projection (Java 8+)
+
+```java
+interface NamesOnly {
+    String getFirstname();
+    String getLastname();
+
+    default String getFullName() {
+        return getFirstname() + " " + getLastname();
+    }
+}
+```
+
+✅ Without @Value, hum apne method se bana sakte hain.
+
+### 4.9 Spring Bean call inside Projection (@Value se)
+
+Bean:
+
+```java
+@Component
+class MyBean {
+    String getFullName(Person person) {
+        return person.getFirstname() + " " + person.getLastname();
+    }
+}
+```
+
+Projection:
+
+```java
+interface NamesOnly {
+    @Value("#{@myBean.getFullName(target)}")
+    String getFullName();
+}
+```
+
+✅ Bean ke method ko call karke projection ka field ban raha hai.
+
+### 4.10 Nullable Wrapper Projection
+
+```java
+interface NamesOnly {
+    Optional<String> getFirstname();
+}
+```
+
+✅ Agar firstname null hoga, to `Optional.empty()` milega.  
+Supported types: `Optional`, `Vavr Option`, `Scala Option`, etc.
+
+### 4.11 Class-Based (DTO) Projection (Record Based)
+
+```java
+record NamesOnly(String firstname, String lastname) {}
+```
+
+Repository:
+
+```java
+interface PersonRepository extends Repository<Person, UUID> {
+    Collection<NamesOnly> findByLastname(String lastname);
+}
+```
+
+✅ **No proxy**, direct DTO object aata hai, memory optimized.
+
+### 4.12 Quick Table Summary (Easy Learning)
+
+| Feature                     | Interface Projection               | DTO Projection (Record)        |
+| :-------------------------- | :--------------------------------- | :----------------------------- |
+| How it works                | Proxy banake getter call karta hai | Direct object create karta hai |
+| Supports nested projection? | Yes                                | No                             |
+| Performance                 | Medium                             | High                           |
+| Complexity                  | Less                               | Less                           |
+
+### 4.13 Dynamic Projections
+
+Method:
+
+```java
+<T> Collection<T> findByLastname(String lastname, Class<T> type);
+```
+
+Call Examples:
+
+```java
+Collection<Person> allPersons = repo.findByLastname("Sharma", Person.class);
+Collection<NamesOnly> onlyNames = repo.findByLastname("Sharma", NamesOnly.class);
+```
+
+✅ Runtime par decide kar sakte ho ki **full entity chahiye ya sirf projection**.
+
+### 4.14 Special in JPA
+
+| Query Type    | Notes                                                |
+| :------------ | :--------------------------------------------------- |
+| Derived Query | Auto projection support                              |
+| JPQL with DTO | Must use `SELECT new com.example.DTO(f1, f2)` syntax |
+| Native Query  | Use mapping or direct DTO constructor                |
+
+### 4.15 Real Life Example Table (Projection Output)
+
+| Query                      | Projection Interface                                  | Output                            |
+| :------------------------- | :---------------------------------------------------- | :-------------------------------- |
+| `findByLastname("Sharma")` | `NamesOnly`                                           | Only firstname, lastname          |
+| `findByLastname("Sharma")` | `PersonSummary`                                       | firstname, lastname, address.city |
+| `findByLastname("Sharma")` | `record NamesOnly(String firstname, String lastname)` | DTO objects                       |
+
+### 4.16 Practice Questions
+
+1. Projection kya hota hai?
+2. Closed projection aur open projection ka kya difference hai?
+3. Nested projections kaise likhte hain?
+4. Interface-based projections me proxy banta hai ya real object?
+5. DTO projection me proxy banta hai kya?
+6. Dynamic projection ka use case kya hai?
+7. @Value kahan use karte hain projections me?
+8. Optional ka use projection me kaise hota hai?
+9. Projection me Spring Bean ka method call kaise karte hain?
+10. DTO class me kaunsa constructor hona zaruri hai?
+11. JPQL me DTO kaise return karte hain?
+12. Native query me projection kaise use karte hain?
+13. Projection field null ho to kya return hoga?
+14. Dynamic projection kaise call karte hain method se?
+15. Projection me address ka sirf city field kaise fetch karoge?
+16. DTO me nested projection allowed hai kya?
+17. @PersistenceCreator annotation kab use karte hain?
+18. Record class projection ke kya advantage hain?
+19. Projection ke saath count query kaise optimize hota hai?
+20. Projection ke saath complex aggregation query kaise likhte hain?
+
+### 4.17 Chapter Summary
+
+| Step                            | Status |
+| :------------------------------ | :----- |
+| Full Concept Clear kar diya     | ✅     |
+| Real Code Examples diye         | ✅     |
+| Quick Tables and Shortcuts diye | ✅     |
+| Practice Questions diye         | ✅     |
+
+## 📚 Chapter 5: Dynamic Projections - Live Example
+
+### 5.1 Dynamic Projection Kya Hota Hai?
+
+**Simple:**
+
+- Runtime pe decide kar sakte ho ki **kaunsa projection use karna hai**
+- Ek hi method se multiple types ke projections fetch kar sakte ho
+- Type safety maintain hoti hai
+
+### 5.2 Live Example with "Vani Priya" and "Ravi Kumar"
+
+#### 5.2.1 Repository Method
+
+```java
+@Repository
+public interface PersonRepository extends JpaRepository<Person, Long> {
+
+    // Dynamic Projection Method
+    <T> List<T> findByLastname(String lastname, Class<T> type);
+}
+```
+
+#### 5.2.2 Different Projection Types
+
+```java
+// 1. Simple Names Projection
+public interface NamesOnly {
+    String getFirstname();
+    String getLastname();
+}
+
+// 2. Full Name Projection
+public interface FullNameOnly {
+    @Value("#{target.firstname + ' ' + target.lastname}")
+    String getFullName();
+}
+
+// 3. Address Summary Projection
+public interface AddressSummary {
+    String getCity();
+    String getZipCode();
+}
+
+// 4. Complete Person Summary
+public interface PersonSummary {
+    String getFirstname();
+    String getLastname();
+    AddressSummary getAddress();
+}
+```
+
+#### 5.2.3 Service Layer Example
+
+```java
+@Service
+public class PersonService {
+
+    @Autowired
+    private PersonRepository personRepository;
+
+    // 1. Fetch Only Names
+    public List<NamesOnly> getNamesOnly(String lastname) {
+        return personRepository.findByLastname(lastname, NamesOnly.class);
+    }
+
+    // 2. Fetch Full Names
+    public List<FullNameOnly> getFullNames(String lastname) {
+        return personRepository.findByLastname(lastname, FullNameOnly.class);
+    }
+
+    // 3. Fetch Person Summary
+    public List<PersonSummary> getPersonSummary(String lastname) {
+        return personRepository.findByLastname(lastname, PersonSummary.class);
+    }
+}
+```
+
+#### 5.2.4 Controller Example
+
+```java
+@RestController
+@RequestMapping("/api/persons")
+public class PersonController {
+
+    @Autowired
+    private PersonService personService;
+
+    // 1. Get Names Only
+    @GetMapping("/names/{lastname}")
+    public List<NamesOnly> getNames(@PathVariable String lastname) {
+        return personService.getNamesOnly(lastname);
+    }
+
+    // 2. Get Full Names
+    @GetMapping("/fullnames/{lastname}")
+    public List<FullNameOnly> getFullNames(@PathVariable String lastname) {
+        return personService.getFullNames(lastname);
+    }
+
+    // 3. Get Person Summary
+    @GetMapping("/summary/{lastname}")
+    public List<PersonSummary> getSummary(@PathVariable String lastname) {
+        return personService.getPersonSummary(lastname);
+    }
+}
+```
+
+### 5.3 Live Output Examples
+
+#### 5.3.1 NamesOnly Projection (GET /api/persons/names/Priya)
+
+```json
+[
+  {
+    "firstname": "Vani",
+    "lastname": "Priya"
+  }
+]
+```
+
+#### 5.3.2 FullNameOnly Projection (GET /api/persons/fullnames/Priya)
+
+```json
+[
+  {
+    "fullName": "Vani Priya"
+  }
+]
+```
+
+#### 5.3.3 PersonSummary Projection (GET /api/persons/summary/Priya)
+
+```json
+[
+  {
+    "firstname": "Vani",
+    "lastname": "Priya",
+    "address": {
+      "city": "Mumbai",
+      "zipCode": "400001"
+    }
+  }
+]
+```
+
+### 5.4 Quick Reference Table
+
+| Projection Type | API Endpoint                 | Example Output               |
+| :-------------- | :--------------------------- | :--------------------------- |
+| NamesOnly       | /api/persons/names/Priya     | firstname, lastname          |
+| FullNameOnly    | /api/persons/fullnames/Priya | fullName                     |
+| PersonSummary   | /api/persons/summary/Priya   | firstname, lastname, address |
+
+### 5.5 Practice Questions
+
+1. Dynamic projection ka main advantage kya hai?
+2. Runtime pe projection type change karne ke liye kya karna padta hai?
+3. Dynamic projection me type safety kaise maintain hoti hai?
+4. Multiple projection types ek sath kaise handle kar sakte hain?
+5. Dynamic projection me performance ka kya impact hota hai?
+
+### 5.6 Chapter Summary
+
+| Step                             | Status |
+| :------------------------------- | :----- |
+| Dynamic Projection Concept Clear | ✅     |
+| Live Code Examples diye          | ✅     |
+| API Endpoints dikhaye            | ✅     |
+| JSON Output Examples diye        | ✅     |
+| Practice Questions diye          | ✅     |
