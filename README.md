@@ -161,3 +161,49 @@ Spring Data JPA mein different type ke repository interfaces available hain:
 | Repository       | Database operations ko manage karta hai                        |
 | Main Class       | Application ko run karne ka flow set karta hai                 |
 | Important Points | Auto-wiring, Auto-implementation aur Optional handling ka role |
+
+## 📝 Chapter 1: 20 Questions (Practice / Assignment)
+
+### Basic Questions
+
+1. Spring Data JPA kya hai aur iska main use kya hai?
+
+2. Apna Spring Boot project kaise create kar sakte hain?
+
+3. Project setup ke liye kaun kaun se dependencies jaruri hoti hain?
+
+4. `@Entity` annotation ka kya role hai?
+
+5. `@Id` aur `@GeneratedValue` annotations kis liye use hote hain?
+
+6. Repository interface banana kyun zaruri hai?
+
+7. PersonRepository mein `save()` aur `findById()` methods kya karte hain?
+
+8. Spring Data JPA mein repository ka implementation kaun karta hai?
+
+9. CommandLineRunner ka kya use hota hai application mein?
+
+10. Optional class ka kya role hai `findById()` method ke sath?
+
+### Thoda Advance Thinking
+
+11. `@SpringBootApplication` annotation ke andar kya kya hota hai?
+
+12. start.spring.io aur STS dono mein kya difference hai project banate waqt?
+
+13. Spring automatically repository instances ko kaise inject karta hai?
+
+14. Agar `findById()` se record nahi mile to kya hota hai?
+
+15. Hum manually implementation class kyun nahi banate Spring Data JPA mein?
+
+16. H2 Database aur MySQL database mein kya major difference hai development ke time pe?
+
+17. Agar kisi Entity mein `@Entity` annotation nahi lagaye to kya error aayega?
+
+18. Spring Data JPA mein Repository, CrudRepository, aur JpaRepository mein kya differences hain?
+
+19. ListCrudRepository ka kab use karte hain?
+
+20. Hello World example mein agar database connection galat ho jaye to application kaise behave karegi?
