@@ -207,3 +207,172 @@ Spring Data JPA mein different type ke repository interfaces available hain:
 19. ListCrudRepository ka kab use karte hain?
 
 20. Hello World example mein agar database connection galat ho jaye to application kaise behave karegi?
+
+## 📚 Core Concepts of Spring Data JPA — Ekdum Seedha aur Clear Hindi mein
+
+### 1. Repository Interface kya hai?
+
+Repository ek main interface hai.
+
+Ye batata hai kaunsi Entity class (jaise User, Student) aur kaunsa ID type (Long, Integer) manage karna hai.
+
+Repository bas types ko capture karta hai aur aage ka kaam Spring Data karta hai.
+
+### 2. Entity ya Domain Type kya hai?
+
+Entity ka matlab hai — koi object jo database mein ek record banega.
+
+Entity ka apna ek ID (Primary Key) hota hai.
+
+Domain Object ya Aggregate bhi same hi hote hain (Entity jaise hi).
+
+### 3. Domain Driven Design (DDD) ka matlab
+
+Har Entity ka ek ID hota hai.
+
+Hum jab database se Entity nikalte hain ya save karte hain to ID ka use karte hain.
+
+Spring DDD ka concept follow karta hai.
+
+### 4. CrudRepository Interface kya hai?
+
+CrudRepository ek interface hai jo basic CRUD operations deta hai:
+
+```java
+public interface CrudRepository<T, ID> extends Repository<T, ID> {
+  <S extends T> S save(S entity);
+  Optional<T> findById(ID primaryKey);
+  Iterable<T> findAll();
+  long count();
+  void delete(T entity);
+  boolean existsById(ID primaryKey);
+}
+```
+
+Iske method ka simple meaning:
+
+- `save(entity)` ➔ Entity ko save/update karta hai.
+- `findById(id)` ➔ ID ke base pe ek Entity fetch karta hai.
+- `findAll()` ➔ Saari Entities laata hai.
+- `count()` ➔ Total kitni Entities hai, batata hai.
+- `delete(entity)` ➔ Entity ko delete karta hai.
+- `existsById(id)` ➔ Check karta hai ki ID exist karti hai ya nahi.
+
+### 5. ListCrudRepository kya hai?
+
+ListCrudRepository bhi wahi CRUD methods deta hai.
+
+Farak sirf itna hai: ye List return karta hai, Iterable nahi.
+
+### 6. Reserved Methods ka kya matlab hai?
+
+Kuch methods jaise `findById(ID)` predefined hote hain.
+
+Tumhe khud query nahi likhni padti.
+
+Spring khud samajh leta hai ki kis ID pe kaam karna hai.
+
+### 7. @Query Annotation kab use karte hain?
+
+Jab tumhara Entity ka ID ka naam kuch alag hai (jaise userCode) aur confusion ho raha ho, tab tum @Query likh sakte ho.
+
+Lekin recommend kiya jata hai ki normal id naming follow karo, warna error aasakta hai.
+
+### 8. JpaRepository aur MongoRepository kya hote hain?
+
+- JpaRepository ➔ SQL databases ke liye (jaise MySQL, Postgres).
+- MongoRepository ➔ MongoDB ke liye (NoSQL database).
+
+Dono CrudRepository ko extend karte hain aur extra features dete hain.
+
+### 9. PagingAndSortingRepository kya karta hai?
+
+Agar tumko data ko page-by-page ya sorted format mein chahiye, to ye interface use karte hain.
+
+Methods:
+
+- `findAll(Sort sort)` ➔ Sorting ke saath data laata hai.
+- `findAll(Pageable pageable)` ➔ Pagination ke saath data laata hai.
+
+Example:
+Page 2, 20 records per page:
+
+```java
+Page<User> users = repository.findAll(PageRequest.of(1, 20));
+```
+
+### 10. ListPagingAndSortingRepository kya karta hai?
+
+Same jaise PagingAndSortingRepository.
+
+Farak sirf itna hai: Ye List return karta hai, Iterable nahi.
+
+### 11. Derived Count Query kya hoti hai?
+
+Agar tum count karna chahte ho based on kisi property:
+
+```java
+interface UserRepository extends CrudRepository<User, Long> {
+  long countByLastname(String lastname);
+}
+```
+
+✅ Matlab: Lastname ke base pe kitne users hain, count karo.
+
+### 12. Derived Delete Query kya hoti hai?
+
+Agar tum delete karna chahte ho based on property:
+
+```java
+interface UserRepository extends CrudRepository<User, Long> {
+  long deleteByLastname(String lastname);
+  List<User> removeByLastname(String lastname);
+}
+```
+
+✅ Matlab: Lastname ke base pe users delete kar do.
+
+## 📖 Full Summary (One-Table mein)
+
+| Concept                    | Simple Meaning                          |
+| -------------------------- | --------------------------------------- |
+| Repository                 | Entity + ID manage karta hai            |
+| Entity                     | Database ka ek record                   |
+| CrudRepository             | Basic save, find, delete, count methods |
+| ListCrudRepository         | CRUD + List return karta hai            |
+| JpaRepository              | JPA (SQL) ke liye extra features        |
+| PagingAndSortingRepository | Pagination aur sorting ke liye          |
+| @Query                     | Jab custom query likhni ho              |
+| countBy.., deleteBy..      | Automatic query banane ke liye          |
+
+## 📝 Practice Questions
+
+### Core Concepts Questions
+
+1. Repository interface ka main kaam kya hai?
+2. Repository mein hum kaunse do types define karte hain?
+3. Entity kya hoti hai?
+4. Domain Object aur Entity mein kya relation hai?
+5. Value Object kya hota hai? Entity se kaise alag hai?
+6. CrudRepository interface kya karta hai?
+7. save() method ka kya kaam hai CrudRepository mein?
+8. findById() method ka use kya hai?
+9. findAll() method kya return karta hai?
+10. count() method ka kya kaam hai?
+11. ListCrudRepository aur CrudRepository mein kya fark hai?
+12. @Query annotation kab use karte hain?
+13. Agar Entity ka ID field ka naam id nahi hai, to kya dikkat ho sakti hai?
+14. JpaRepository kis ke liye use hota hai?
+15. MongoRepository kis ke liye use hota hai?
+16. PagingAndSortingRepository ka kya kaam hai?
+17. findAll(Pageable pageable) kya karta hai?
+18. Derived Query ka matlab kya hota hai?
+19. countByLastname() method kis kaam mein aata hai?
+20. deleteByLastname() aur removeByLastname() mein kya fark hai?
+
+### 📖 Bonus Short Questions (1 line wale)
+
+1. Repository kis package mein hoti hai Spring Data mein?
+2. Kaunsa method database se ek record delete karta hai CrudRepository mein?
+3. Entity ko identify karne ke liye kis annotation ka use hota hai?
+4. Paging aur Sorting karne ke liye kaunsa repository use hoti hai?
