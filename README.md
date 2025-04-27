@@ -580,7 +580,7 @@ class Configuration {}
 16. PagingAndSortingRepository ka kya kaam hai?
 17. findAll(Pageable pageable) kya karta hai?
 18. Derived Query ka matlab kya hota hai?
-19. countByLastname() method kis kaam mein aata hai?
+19. countByLastname() method kis kaam me aata hai?
 20. deleteByLastname() aur removeByLastname() mein kya fark hai?
 
 ### 📖 Bonus Short Questions (1 line wale)
@@ -713,3 +713,999 @@ class Configuration {}
 | Real-World Design | 4         |
 | MCQ               | 5         |
 | Bonus Practice    | 5         |
+
+## ✨ Spring Data JPA Configuration - Full Easy Explanation
+
+### 🔵 Configuration Introduction
+
+Spring Data JPA ko configure karne ke 2 tareeke hain:
+
+- Java annotations (@EnableJpaRepositories waale)
+- XML file likh ke (`<jpa:repositories>`) ke through.
+
+### 🔵 Annotation-based Configuration
+
+Tum Java ke annotations ya XML dono se apne JPA repositories activate kar sakte ho.
+
+#### 🛠 Example 1: JavaConfig
+
+```java
+@Configuration
+@EnableJpaRepositories
+@EnableTransactionManagement
+class ApplicationConfig {
+```
+
+- `@Configuration` ➔ Batata hai ki ye ek Spring Configuration class hai
+- `@EnableJpaRepositories` ➔ Batata hai ki yaha JPA repositories ka auto-scanning start karo
+- `@EnableTransactionManagement` ➔ Transaction management enable karta hai (begin, commit, rollback)
+
+```java
+@Bean
+public DataSource dataSource() {
+    EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
+    return builder.setType(EmbeddedDatabaseType.HSQL).build();
+}
+```
+
+- **DataSource** ➔ Ye batata hai ki kaunsa database hum use karenge (HSQLDB yaha example me ek in-memory DB hai)
+
+```java
+@Bean
+public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+    HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+    vendorAdapter.setGenerateDdl(true);
+
+    LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+    factory.setJpaVendorAdapter(vendorAdapter);
+    factory.setPackagesToScan("com.acme.domain");
+    factory.setDataSource(dataSource());
+    return factory;
+}
+```
+
+- **EntityManagerFactory** ➔ Ye entity classes ko database me map karta hai
+- Hibernate ko bataya jaa raha hai ki DDL (Create Table, Alter Table) generate karna hai
+- EntityManagerFactory ko configure kiya gaya hai:
+  - Hibernate adapter set kiya
+  - Entity classes ke package bataye
+  - Database connection diya
+
+```java
+@Bean
+public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+    JpaTransactionManager txManager = new JpaTransactionManager();
+    txManager.setEntityManagerFactory(entityManagerFactory);
+    return txManager;
+}
+```
+
+- **TransactionManager** ➔ Database transactions manage karega
+- JPA ke saath `JpaTransactionManager` use hota hai
+
+### 🔵 Important Point:
+
+Direct `EntityManagerFactory` mat banao, kyunki `LocalContainerEntityManagerFactoryBean` hi Exception translation support karta hai, jo Spring ke liye important hai.
+
+### 🔵 Spring Namespace (XML configuration)
+
+Spring Data JPA ek alag XML namespace deta hai jisse tum repositories declare kar sakte ho.
+
+#### 🛠 Example 2: XML Configuration
+
+```xml
+<jpa:repositories base-package="com.acme.repositories" />
+```
+
+- `base-package` ➔ Wo package jisme tumhari repository interfaces rakhe gaye hain
+
+### 🔵 JavaConfig vs XML Config — Which is Better?
+
+- Pehle ke zamane me XML use hota tha (Spring 2.x)
+- Aaj ke time me JavaConfig zyada popular hai (`@Configuration`, `@EnableJpaRepositories`)
+- Future me naye features sirf JavaConfig me mil sakte hain, XML me nahi
+
+### 🔵 Exception Translation
+
+Jab tum `<jpa:repositories>` ya `@EnableJpaRepositories` use karte ho, Spring automatic database errors ko apne standard errors me convert karta hai jaise `DataAccessException`.
+
+### 🔵 Custom Namespace Attributes
+
+Agar tumhare project me multiple `EntityManagerFactory` ya multiple `TransactionManager` hain to tum manually specify kar sakte ho.
+
+| Attribute                    | Kya Karta Hai                                              | Kab Zarurat Padegi          |
+| :--------------------------- | :--------------------------------------------------------- | :-------------------------- |
+| `entity-manager-factory-ref` | Konsa EntityManagerFactory use karna hai specify karta hai | Jab multiple factories hain |
+| `transaction-manager-ref`    | Konsa transaction manager use karna hai specify karta hai  | Jab multiple managers hain  |
+
+### 🔵 Bootstrap Mode (Spring Data JPA 2.1+)
+
+- Normal default me repositories start hote hi ban jaate hain (early initialization)
+- **Background thread** se EntityManagerFactory initialize karne ke liye kuch naya mode diya gaya hai:
+
+| Mode       | Matlab                                                                                        |
+| :--------- | :-------------------------------------------------------------------------------------------- |
+| `DEFAULT`  | Repositories turant ban jaate hain jab jarurat ho                                             |
+| `LAZY`     | Repositories tabhi banenge jab actual use karoge                                              |
+| `DEFERRED` | Repositories tab banenge jab application poora load ho jaye (`ContextRefreshedEvent` ke baad) |
+
+### 🔵 Recommendations
+
+- Agar tum normal synchronous initialization kar rahe ho ➔ DEFAULT best hai
+- Agar JPA ko asynchronously load kar rahe ho ➔ DEFERRED use karo
+- Testing me ya development time me ➔ LAZY mode achha hai (fast startup ke liye)
+
+## 🎯 Practice Questions
+
+### 📘 Concept Questions
+
+1. Spring Data JPA ko configure karne ke kitne tareeke hain?
+2. @EnableJpaRepositories annotation ka kya kaam hai?
+3. LocalContainerEntityManagerFactoryBean kyun banana padta hai?
+4. DataSource bean kis cheez ke liye banate hain?
+5. HibernateJpaVendorAdapter kya karta hai?
+6. EntityManagerFactory kya kaam karta hai Spring me?
+7. @EnableTransactionManagement kyun lagate hain?
+8. PlatformTransactionManager ka kya role hai?
+
+### 📘 Code Based Practical
+
+9. JavaConfig ka example likho jisme H2 database use ho
+10. XML me JPA repositories ka declaration kaise karoge?
+11. Spring XML me base-package kya kaam karta hai?
+12. Spring XML me EntityManagerFactory specify karne ka tarika kya hai?
+
+### 📘 Concept Deep Dive
+
+13. JavaConfig aur XML config me kya difference hai?
+14. JavaConfig kyu zyada preferred hai aaj ke time me?
+15. Spring Data JPA me Exception Translation ka kya benefit hai?
+16. Agar multiple EntityManagerFactory hai to kya karoge?
+17. Agar multiple transaction managers hain to kya karoge?
+
+### 📘 Bootstrap Mode Pe Questions
+
+18. BootstrapMode DEFAULT kya karta hai?
+19. BootstrapMode LAZY kaise kaam karta hai?
+20. BootstrapMode DEFERRED ka kya benefit hai?
+21. Agar tum asynchronous JPA bootstrap kar rahe ho to kaunsa bootstrap mode sahi hai?
+22. Testing ya local development ke liye kaunsa bootstrap mode use karoge?
+
+### 📘 MCQ Type Short Questions
+
+23. LocalContainerEntityManagerFactoryBean ka alternative kya hota hai?
+24. Kaunsa annotation repositories ko scan karne lagata hai?
+25. Kaunsa exception class JPA errors ko wrap karti hai Spring me?
+26. BootstrapMode me DEFERRED kaam kaise karta hai internally?
+27. Spring Data JPA me PlatformTransactionManager ka default naam kya hai?
+
+### 📘 Real World Scenarios
+
+28. Agar application me ek MongoDB aur ek JPA database dono hain to kya dikkat aa sakti hai?
+29. EntityManagerFactory late initialize karne ka kya fayda hai?
+30. JavaConfig me agar base package nahi diya to kaunsa package scan hota hai?
+
+## 📚 Final Summary
+
+| Type                     | Questions |
+| ------------------------ | --------- |
+| Concept Questions        | 8         |
+| Code Based Practical     | 4         |
+| Concept Deep Dive        | 5         |
+| Bootstrap Mode Questions | 5         |
+| MCQ Type Questions       | 5         |
+| Real World Scenarios     | 3         |
+
+## ✨ Persisting Entities - Full Easy Explanation
+
+### 🔵 Introduction
+
+Yeh section batata hai ki **Spring Data JPA** me entity (jaise `Student`, `Order`) ko **database me kaise save karte hain**.
+
+### 🔵 Saving Entities
+
+Entity ko database me save karne ke liye hum **`CrudRepository.save()`** method ka use karte hain.
+
+Backend me `save()` method **EntityManager** ka use karta hai:
+
+- Agar nayi entity hai ➔ `entityManager.persist()`
+- Agar existing entity hai ➔ `entityManager.merge()`
+
+### 🔵 Entity State-detection Strategies
+
+Spring Data ko yeh samajhna padta hai ki **entity nayi hai ya purani**.  
+Iske liye kuch strategies hoti hain.
+
+#### Strategy 1: Version-Property and ID Inspection (Default)
+
+- Pehle yeh check karta hai ki kya entity me koi `@Version` field hai (non-primitive jaise `Long`, `Integer`, etc)
+- Agar version field null hai ➔ entity nayi hai
+- Agar Version property nahi hai, to phir ID check karta hai:
+  - Agar ID null hai ➔ nayi entity
+  - Agar ID non-null hai ➔ purani entity
+
+**Note:** JPA ke according, 0 bhi valid version hota hai. Isliye agar Version field primitive type (`int`, `long`) ka hai, to woh detect karna mushkil hota hai ki naya hai ya nahi.
+
+#### Strategy 2: Implementing Persistable Interface
+
+Agar entity class me tum `Persistable` interface implement karte ho, to Spring tumhari `isNew()` method se samjhega ki entity nayi hai ya purani.
+
+#### Strategy 3: Customizing EntityInformation
+
+Agar tum chaaho, to apna custom EntityInformation bana sakte ho (advance level customization).  
+Usually jarurat nahi padti.
+
+### 🔵 Special Case: Manually Assigned Identifiers
+
+Agar tum entity ka ID khud assign karte ho (auto-generate nahi karte), aur Version property nahi hai, tab normal ID check wali strategy kaam nahi karegi.
+
+Is situation me, ek **`isNew` flag** maintain karte hain jo batata hai ki entity nayi hai ya nahi.
+
+#### 🛠 Example: Base Class with isNew Flag
+
+```java
+@MappedSuperclass
+public abstract class AbstractEntity<ID> implements Persistable<ID> {
+
+  @Transient
+  private boolean isNew = true;
+
+  @Override
+  public boolean isNew() {
+    return isNew;
+  }
+
+  @PrePersist
+  @PostLoad
+  void markNotNew() {
+    this.isNew = false;
+  }
+}
+```
+
+**Simple Explanation:**
+
+- `@Transient` ➔ `isNew` field ko database me save nahi karna
+- `isNew()` method ➔ batata hai ki entity nayi hai ya purani
+- `@PrePersist` aur `@PostLoad` ➔ Jab entity database me save ya load hoti hai, tab `isNew = false` karte hain
+
+### 🔥 Short Full Flow of Persisting Entities:
+
+```plaintext
+save(entity)
+    |
+Check if new:
+    - Version field check
+    - ID check
+    - Persistable.isNew() check
+    |
+If new ➔ entityManager.persist(entity)
+If old ➔ entityManager.merge(entity)
+```
+
+## 🎯 Practice Questions
+
+### 📘 Concept Understanding
+
+1. Entity ko Spring Data JPA me kaise save karte hain?
+2. CrudRepository.save() method backend me kis JPA method ka use karta hai?
+3. persist() aur merge() me kya difference hai?
+4. Kaise decide hota hai ki entity nayi hai ya purani?
+5. Version-property kya hoti hai aur kaise kaam karti hai?
+6. ID field ke basis pe kaise pata lagate hain ki entity nayi hai?
+7. Primitive Version fields (int, long) me kya dikkat hoti hai?
+8. Persistable interface ka kya role hai?
+9. isNew() method kis case me override karte hain?
+10. EntityInformation kya customize kar sakte hain?
+
+### 📘 Code-Based Practical
+
+11. Ek entity class likho jisme Persistable implement kiya gaya ho
+12. PrePersist aur PostLoad annotations ka kya use hai? Code example do
+13. AbstractEntity base class ka example likho jisme isNew flag ho
+14. Agar manually assigned ID hai to entity ka new detection kaise karoge?
+
+### 📘 Deep Thinking Questions
+
+15. Jab entity me Version aur ID dono nahi hain, to kya hoga?
+16. Spring Data JPA kis situation me entityManager.merge() call karta hai?
+17. Agar kisi entity me Version field 0 set hai to kya ye new entity hogi?
+18. Custom EntityInformation kyun aur kaise banate hain?
+
+### 📘 Real World Use-Case
+
+19. Agar application me sabhi entities me manually assigned IDs hain to kaunsa pattern follow karoge?
+20. Persistable implement karne ke kya advantages aur disadvantages hain?
+21. EntityManager.persist() kab automatic call hota hai?
+
+### 📘 MCQ Style Questions
+
+22. Spring Data JPA me save() ke andar new entity ke liye kya method call hota hai?
+
+- (a) persist()
+- (b) merge()
+- (c) saveOrUpdate()
+- (d) refresh()
+  ✅ Answer: (a)
+
+23. EntityInformation customize karne ke liye kis class ko extend karna padta hai?
+
+- (a) JpaRepository
+- (b) JpaRepositoryFactory
+- (c) EntityManagerFactory
+- (d) CrudRepository
+  ✅ Answer: (b)
+
+24. @PrePersist kab call hota hai?
+
+- (a) Entity save hone ke baad
+- (b) Entity save hone se pehle
+- (c) Entity load hone ke baad
+- (d) Delete hone ke pehle
+  ✅ Answer: (b)
+
+25. isNew() method kis interface me defined hai?
+
+- (a) Persistable
+- (b) Serializable
+- (c) EntityListener
+- (d) JpaRepository
+  ✅ Answer: (a)
+
+26. Agar ek entity ka ID null nahi hai aur Version field nahi hai, to entity ko kaise treat kiya jaayega?
+
+- (a) New
+- (b) Existing
+  ✅ Answer: (b)
+
+### 📘 Bonus Tough Questions
+
+27. Manually assigned ID ke case me transient isNew flag kyun zaruri hai?
+28. PostLoad annotation ka kya role hai entity life cycle me?
+29. Persistable implement karne par entity ka lifecycle kaise control kar sakte ho?
+30. EntityManagerFactory ka persist vs merge decision internally kaise hota hai?
+
+## 📚 Final Summary
+
+| Topic                                      | Cover hua? |
+| :----------------------------------------- | :--------- |
+| Saving entity via save() method            | ✅         |
+| persist() vs merge()                       | ✅         |
+| How Spring JPA checks entity is new or not | ✅         |
+| Version property and ID inspection         | ✅         |
+| Persistable interface use                  | ✅         |
+| Base entity class with isNew flag          | ✅         |
+| 30+ Questions for complete practice        | ✅         |
+
+## ✨ Query Methods ke Return Types
+
+### 🔵 Normal Return Types - List, Iterable, Set
+
+Agar tumhara query multiple records laata hai, tum normally `List`, `Iterable`, ya `Set` return kar sakte ho.
+
+Example:
+
+```java
+List<User> findByLastname(String lastname);
+Iterable<User> findByCity(String city);
+Set<User> findByRole(String role);
+```
+
+✅ Ye simple hai, sabhi records ek baar me load ho jaate hain.
+
+### 🔵 Streamable Return Type
+
+- `Streamable` ek special type hai jo **Iterable** ki tarah behave karta hai + extra features deta hai.
+- Tum `filter()`, `map()`, jaise operations directly kar sakte ho.
+
+Example:
+
+```java
+Streamable<User> findByFirstnameContaining(String firstname);
+Streamable<User> findByLastnameContaining(String lastname);
+```
+
+Aur fir combine kar sakte ho:
+
+```java
+Streamable<User> result =
+    repository.findByFirstnameContaining("av")
+              .and(repository.findByLastnameContaining("ea"));
+```
+
+### 🔵 Custom Streamable Wrapper Types
+
+Tum apna custom return type bhi bana sakte ho, jo `Streamable` ko wrap kare.
+
+Example:
+
+```java
+@RequiredArgsConstructor(staticName = "of")
+class Products implements Streamable<Product> {
+
+  private final Streamable<Product> streamable;
+
+  public MonetaryAmount getTotal() {
+    return streamable.stream()
+      .map(Product::getPrice)
+      .reduce(Money.of(0), MonetaryAmount::add);
+  }
+
+  @Override
+  public Iterator<Product> iterator() {
+    return streamable.iterator();
+  }
+}
+```
+
+Repository:
+
+```java
+interface ProductRepository extends Repository<Product, Long> {
+  Products findAllByDescriptionContaining(String text);
+}
+```
+
+✅ Tum Products object ko direct query se laa sakte ho bina manual wrapping ke.
+
+### 🔵 Stream Return Type (Java 8+)
+
+Agar tumhara data bahut bada hai aur tum ek-ek record process karna chahte ho (batch processing type), to `Stream<T>` use kar sakte ho.
+
+Example:
+
+```java
+@Query("select u from User u")
+Stream<User> findAllByCustomQueryAndStream();
+```
+
+Stream use karte waqt:
+
+```java
+try (Stream<User> stream = repository.findAllByCustomQueryAndStream()) {
+    stream.forEach(user -> System.out.println(user.getName()));
+}
+```
+
+✅ **Important:** Stream close karna zaruri hai (try-with-resources).
+
+### 🔵 Asynchronous Query Results
+
+Tum apne query ko async bhi bana sakte ho, jaise:
+
+```java
+@Async
+Future<User> findByFirstname(String firstname);
+
+@Async
+CompletableFuture<User> findOneByFirstname(String firstname);
+```
+
+✅ Query background thread me chalegi, aur result Future/CompletableFuture me milega.
+
+### 🔵 Paging aur Slicing (Page, Slice)
+
+Agar result **bohot bada** ho, to paging/slicing ka use karte hain:
+
+#### Page:
+
+```java
+Page<User> findByLastname(String lastname, Pageable pageable);
+```
+
+- Full page result deta hai
+- Page number, size aur total pages ka info deta hai
+
+#### Slice:
+
+```java
+Slice<User> findByLastname(String lastname, Pageable pageable);
+```
+
+- Sirf current slice deta hai (itna batata hai ki aage aur data hai ya nahi)
+- Count query nahi chalti (faster)
+
+### 🔵 Sort aur Limit Special Handling
+
+- Sort:
+
+```java
+List<User> findByLastname(String lastname, Sort sort);
+```
+
+- Limit:
+
+```java
+List<User> findFirst10ByLastname(String lastname);
+List<User> findTop5ByAgeGreaterThan(int age);
+```
+
+✅ Limit aur Top ka use kar ke **fixed number of results** fetch kar sakte ho.
+
+### 🔵 Big Table for Summary:
+
+| Return Type        | Kaam                           | Special Note                         |
+| :----------------- | :----------------------------- | :----------------------------------- |
+| List<T>            | Sare results load karta hai    | Memory heavy                         |
+| Streamable<T>      | Iterable + stream operations   | Convenient but still all memory      |
+| Stream<T>          | Data ek ek karke load hota hai | Stream close karna padta hai         |
+| Page<T>            | Full page + total elements     | Costly count query                   |
+| Slice<T>           | Only current slice             | Fast, no count query                 |
+| Flux<T> (Reactive) | Streaming reactive data        | MongoDB, R2DBC jaise modules ke liye |
+
+## 🎯 Practice Questions
+
+### 📘 Concept Understanding
+
+1. Query method ka return type List kyun use karte hain?
+2. Streamable me kya advantage milta hai Iterable ke comparison me?
+3. Stream<T> kaise kaam karta hai?
+4. Stream close karna kyun zaruri hai?
+5. Page aur Slice me kya farak hai?
+
+### 📘 Code Based Practical
+
+6. UserRepository me method likho jo Page<User> return kare.
+7. UserRepository me method likho jo Streamable<User> return kare.
+8. ProductRepository me method likho jo custom Products type return kare.
+9. EmployeeRepository me method likho jo Stream<Employee> return kare.
+10. OrderRepository me method likho jo Top 5 Orders fetch kare.
+
+### 📘 Deep Thinking
+
+11. Streamable aur Stream me kya difference hai?
+12. Slice kab prefer karoge instead of Page?
+13. List return karte waqt kya dikkat aa sakti hai?
+14. Future aur CompletableFuture ka kya difference hai asynchronous query me?
+15. Pageable aur Sort parameters method me kaise pass karte hain?
+
+### 📘 MCQ Type
+
+16. Streamable kis feature ko support karta hai?
+
+    - (a) Stream operations
+    - (b) Async operations
+      ✅ Answer: (a)
+
+17. Pageable kis return type ke saath use hota hai?
+
+    - (a) Page
+    - (b) List
+      ✅ Answer: (a)
+
+18. Slice me kya missing hota hai jo Page me hota hai?
+
+    - (a) Total elements count
+    - (b) Pagination
+      ✅ Answer: (a)
+
+19. Stream close karne ka best practice kya hai?
+
+    - (a) Manually close karna
+    - (b) Try-with-resources block
+      ✅ Answer: (b)
+
+20. Limit kaise apply karte ho method name me?
+    - (a) ByOrder
+    - (b) Top ya First
+      ✅ Answer: (b)
+
+### 📘 Real-World Use Cases
+
+21. Jab 10,000 users ka data fetch karna ho to kya return type prefer karoge?
+22. Agar result set small hai to List ka use safe hai ya nahi?
+23. Asynchronous method call karke kya benefit hota hai?
+24. Pageable aur Sort dono ek sath kaise manage karte hain?
+25. List<User> vs Page<User> me performance difference kya hoga jab data bohot zyada ho?
+
+## 📚 Final Summary
+
+| Topic                              | Covered? |
+| :--------------------------------- | :------- |
+| Pageable, Slice, Sort parameters   | ✅       |
+| Top, First keywords for limiting   | ✅       |
+| Dynamic sorting (TypedSort, QSort) | ✅       |
+| Special combinations rules         | ✅       |
+| 30+ Practice Questions Ready       | ✅       |
+
+## 📚 Quick Full 5-Part Notes Summary
+
+### 🟠 Part-1: Query Method Basics + Lookup Strategies
+
+- Spring Data JPA me query banane ke 2 tareeke: **method name** ya **@Query** manually.
+- Query lookup strategies:
+  - **CREATE:** Method name se query banana.
+  - **USE_DECLARED_QUERY:** Sirf manually defined query dhoondhna.
+  - **CREATE_IF_NOT_FOUND:** (Default) Pehle manually check, warna method name se banana.
+
+### 🟠 Part-2: Query Creation Rules
+
+- Query method me **Subject** aur **Predicate** hote hain.  
+  (e.g., `findByLastname` → Subject: `find`, Predicate: `Lastname`)
+- Use `And`, `Or`, `Between`, `LessThan`, `GreaterThan`, `Like` operators.
+- Case ignore karne ke liye: `IgnoreCase` keyword.
+- Sorting ke liye method me `OrderByPropertyAsc/Desc` likhte hain.
+
+### 🟠 Part-3: Reserved Methods + Property Traversal
+
+- Reserved methods jaise `findById()` **@Id** field pe hi kaam karte hain (even if field ka naam alag ho).
+- Nested property access karne ke liye camel-case ya `_` (underscore) ka use karo.
+- Underscore wale fields me double `_` ka use karna padta hai nested path ke liye.
+- Confusion avoid karne ke liye \_ use karna important hai.
+
+### 🟠 Part-4: Return Types (List, Stream, Streamable, Page, Slice)
+
+- `List<T>`, `Iterable<T>`, `Set<T>`: Saare records ek baar me load.
+- `Streamable<T>`: Iterable + functional features.
+- `Stream<T>`: Record by record processing (must close).
+- `Page<T>`: Full paging with total count.
+- `Slice<T>`: Lightweight paging, no total count.
+
+### 🟠 Part-5: Advanced Paging, Sorting, Limiting
+
+- Pageable: dynamic paging (page number, size, sort).
+- Slice: Sirf current data + next page info.
+- Top/First: Fixed number of results (`Top5`, `First3` etc.)
+- Pageable me alag se Sort/Limit nahi aa sakta.
+- TypeSafe Sorting: `TypedSort`, `QSort` jaise APIs use kar sakte ho.
+
+## 📈 Full Mindmap Diagram Overview
+
+```plaintext
+Defining Query Methods
+│
+├── 1. Query Lookup Strategies
+│     ├── CREATE
+│     ├── USE_DECLARED_QUERY
+│     └── CREATE_IF_NOT_FOUND (default)
+│
+├── 2. Query Creation from Method Names
+│     ├── Subject (find, exists)
+│     ├── Predicate (ByLastname, ByAgeBetween)
+│     ├── And / Or operators
+│     ├── IgnoreCase, OrderBy
+│
+├── 3. Reserved Methods
+│     ├── findById() → targets @Id property
+│     ├── Special handling for id vs pk
+│
+├── 4. Property Traversal
+│     ├── Nested property access
+│     ├── Use of _ (underscore) to split
+│
+├── 5. Return Types
+│     ├── List, Iterable, Set
+│     ├── Streamable, Stream
+│     ├── Page, Slice
+│     ├── Async Future/CompletableFuture
+│
+├── 6. Paging, Sorting, Limiting
+│     ├── Pageable, Sort parameters
+│     ├── Limit using Top/First
+│     ├── Special rules for combinations
+│
+└── Final Goal: Build flexible, optimized queries easily!
+```
+
+## ✏️ Mini Test Paper (30 Practice Questions)
+
+### 📄 Section A: Short Answer (1-2 lines)
+
+1. Spring Data JPA me query define karne ke 2 main tareeke kya hain?
+2. Query lookup strategy me CREATE_IF_NOT_FOUND kya karta hai?
+3. findByLastnameAndFirstname method me subject aur predicate kya hain?
+4. Top keyword method me kya karta hai?
+5. Slice aur Page me main difference kya hai?
+
+### 📄 Section B: Code Writing
+
+6. Aisa repository method likho jo `Page<User>` return kare lastname ke basis pe.
+7. Method likho jo `findTop5ByAgeGreaterThan(int age)` type ka kaam kare.
+8. Streamable type ka repository method example do.
+9. Method likho jo nested property address.zipCode ko access kare.
+10. Pageable object kaise create karte hain example ke saath batao.
+
+### 📄 Section C: MCQ (Tick the correct option)
+
+11. Pageable parameter ke saath Sort alag se pass kar sakte ho?
+
+    - (a) Haan
+    - (b) Nahi
+      ✅ (b)
+
+12. Slice result kis case me better hota hai?
+
+    - (a) Jab total elements count chahiye
+    - (b) Jab sirf next page ka check karna hai
+      ✅ (b)
+
+13. findById() kis field ko target karta hai?
+
+    - (a) id field name
+    - (b) @Id annotated field
+      ✅ (b)
+
+14. Stream result jab close nahi karte to kya problem hoti hai?
+
+    - (a) No problem
+    - (b) Memory leak / resource leak
+      ✅ (b)
+
+15. Top5 ka meaning kya hai?
+    - (a) Sabhi laana
+    - (b) 5 results laana
+      ✅ (b)
+
+### 📄 Section D: Real-World Scenarios
+
+16. 1 million records hai, Page return karoge ya List? Kyun?
+17. Nested address.zipCode ko safely access karna ho to kya karoge?
+18. Kaunsa return type prefer karoge jab query slow database se aa raha ho?
+19. Pageable unsorted banana ho to kya karoge?
+20. Streamable kis situation me better hota hai compared to List?
+
+## ✅ Final Deliverables Ready
+
+| Material                       | Status |
+| :----------------------------- | :----- |
+| 5-Part Compact Notes           | ✅     |
+| Mindmap Diagram                | ✅     |
+| Mini Test Paper (30 Questions) | ✅     |
+
+## 📚 Query Method Reference Table with Real Examples
+
+### 🚀 Table: JPA Query Method Keywords + Method Example + Query + Real Data Fetch Example
+
+| Keyword          | Method Example                                         | Query Example                                                       | Data Example Result (Vaccine Table)           |
+| :--------------- | :----------------------------------------------------- | :------------------------------------------------------------------ | :-------------------------------------------- |
+| **And**          | `findByCompanyAndPrice(String company, Integer price)` | `SELECT v FROM Vaccine v WHERE v.company = ?1 AND v.price = ?2`     | Bharat Biotech, 1200 ➔ Covaxin                |
+| **Or**           | `findByCompanyOrPrice(String company, Integer price)`  | `SELECT v FROM Vaccine v WHERE v.company = ?1 OR v.price = ?2`      | Bharat Biotech ya price 1000                  |
+| **IsNull**       | `findByCompanyIsNull()`                                | `SELECT v FROM Vaccine v WHERE v.company IS NULL`                   | (koi record nahi hoga unless NULL ho)         |
+| **IsNotNull**    | `findByCompanyIsNotNull()`                             | `SELECT v FROM Vaccine v WHERE v.company IS NOT NULL`               | Sare vaccines                                 |
+| **Between**      | `findByPriceBetween(Integer min, Integer max)`         | `SELECT v FROM Vaccine v WHERE v.price BETWEEN ?1 AND ?2`           | 1000-1500 ➔ Sputnik V, Moderna, Pfizer        |
+| **LessThan**     | `findByPriceLessThan(Integer price)`                   | `SELECT v FROM Vaccine v WHERE v.price < ?1`                        | Price < 1000 ➔ Gamaleya Research, Cuba Center |
+| **GreaterThan**  | `findByPriceGreaterThan(Integer price)`                | `SELECT v FROM Vaccine v WHERE v.price > ?1`                        | Price > 1300 ➔ Pfizer, Moderna, Sanofi-GSK    |
+| **StartingWith** | `findByCompanyStartingWith(String prefix)`             | `SELECT v FROM Vaccine v WHERE v.company LIKE ?1%`                  | "Pfizer%" ➔ Pfizer-BioNTech                   |
+| **EndingWith**   | `findByCompanyEndingWith(String suffix)`               | `SELECT v FROM Vaccine v WHERE v.company LIKE %?1`                  | "%Institute" ➔ VECTOR Institute               |
+| **Containing**   | `findByCompanyContaining(String word)`                 | `SELECT v FROM Vaccine v WHERE v.company LIKE %?1%`                 | "Biotech" ➔ Bharat Biotech, Sinovac Biotech   |
+| **OrderBy**      | `findByCompanyOrderByPriceAsc(String company)`         | `SELECT v FROM Vaccine v WHERE v.company = ?1 ORDER BY v.price ASC` | Bharat Biotech vaccines ordered by price      |
+| **Not**          | `findByCompanyNot(String company)`                     | `SELECT v FROM Vaccine v WHERE v.company <> ?1`                     | Sare vaccines except Bharat Biotech           |
+| **In**           | `findByCompanyIn(List<String> companies)`              | `SELECT v FROM Vaccine v WHERE v.company IN ?1`                     | [Pfizer-BioNTech, Moderna Inc.] vaccines      |
+| **NotIn**        | `findByCompanyNotIn(List<String> companies)`           | `SELECT v FROM Vaccine v WHERE v.company NOT IN ?1`                 | Baaki sare vaccines                           |
+| **True/False**   | (Boolean fields ke liye)                               | -                                                                   | Agar field like `isApproved` ho to            |
+| **IgnoreCase**   | `findByCompanyIgnoreCase(String company)`              | `SELECT v FROM Vaccine v WHERE UPPER(v.company) = UPPER(?1)`        | "pfizer-biontech" bhi match karega            |
+
+### 📈 Real-World Example Queries on Vaccine Data
+
+#### 1. Bharat Biotech aur price 1200 ke basis pe vaccine dhoondhna
+
+```java
+List<Vaccine> findByCompanyAndPrice(String company, Integer price);
+```
+
+**Call:**
+
+```java
+findByCompanyAndPrice("Bharat Biotech", 1200)
+```
+
+**Result:** Covaxin
+
+#### 2. Price between 1000 and 1500 vaccines
+
+```java
+List<Vaccine> findByPriceBetween(Integer start, Integer end);
+```
+
+**Call:**
+
+```java
+findByPriceBetween(1000, 1500)
+```
+
+**Result:**
+
+- Sputnik V (1000)
+- Moderna (1500)
+- Pfizer (1800 ❌ too high)
+- Covovax (1150)
+
+#### 3. Company name containing "Biotech"
+
+```java
+List<Vaccine> findByCompanyContaining(String keyword);
+```
+
+**Call:**
+
+```java
+findByCompanyContaining("Biotech")
+```
+
+**Result:**
+
+- Bharat Biotech
+- Sinovac Biotech
+
+#### 4. Vaccines sorted by price ascending for company 'Novavax'
+
+```java
+List<Vaccine> findByCompanyOrderByPriceAsc(String company);
+```
+
+**Call:**
+
+```java
+findByCompanyOrderByPriceAsc("Novavax")
+```
+
+**Result:**
+
+- Novavax (1350)
+- Nuvaxovid (from Novavax, 1350)
+
+#### 5. Vaccines where company ends with "Institute"
+
+```java
+List<Vaccine> findByCompanyEndingWith(String suffix);
+```
+
+**Call:**
+
+```java
+findByCompanyEndingWith("Institute")
+```
+
+**Result:**
+
+- VECTOR Institute
+- Cuba Finlay Institute
+
+### 📋 Practice Questions (Vaccine Data Based)
+
+#### 📘 Basic Concept
+
+1. `findByPriceLessThan(1000)` kya fetch karega?
+2. `findByPriceGreaterThan(1200)` ka kya result ayega?
+3. `findByCompanyStartingWith("Sinovac")` kya dega?
+4. `findByCompanyEndingWith("Institute")` kya laega?
+5. `findByCompanyContaining("National")` kya return karega?
+
+#### 📘 Coding Practice
+
+6. Method likho jo company name aur price dono ke basis pe vaccine dhoondhe.
+7. Method likho jo price between 900 and 1200 range ka vaccine fetch kare.
+8. Method likho jo vaccines ko company ke naam ke ascending order me laaye.
+9. Method likho jo "Biotech" word ke basis pe vaccines fetch kare.
+10. Method likho jo company not equal to "Pfizer" wali vaccines dhoonde.
+
+#### 📘 MCQ
+
+11. findByCompanyIgnoreCase("pfizer-biontech") kya karega?
+
+    - (a) Fail hoga
+    - (b) Case-insensitive match karega
+      ✅ (b)
+
+12. findByPriceIn([800, 1200, 1500]) kya karega?
+
+    - (a) 3 prices ka match karega
+    - (b) Sirf ek match karega
+      ✅ (a)
+
+13. EndingWith keyword kis pattern me query banata hai?
+
+    - (a) value%
+    - (b) %value
+      ✅ (b)
+
+14. @Query likhne par automatic method name parsing hoti hai kya?
+
+    - (a) Haan
+    - (b) Nahi
+      ✅ (b)
+
+15. Containing keyword ka LIKE pattern kya hota hai?
+    - (a) value%
+    - (b) %value%
+      ✅ (b)
+
+#### 📘 Real-Life Scenarios
+
+16. Vaccine name containing "covid" ko kaise search karoge?
+17. Company name ke hisaab se sabse sasti vaccine kaise laoge?
+18. Price greater than 1300 ka ascending order me vaccines kaise fetch karoge?
+19. "Biotech" aur "Institute" dono wale vaccines fetch karne ke liye method likho.
+20. Top 5 cheapest vaccines kaise fetch karoge?
+
+#### 📘 Bonus Hard
+
+21. Offset scrolling ke use case vaccine search me kya ho sakte hain?
+22. Keyset scrolling aur offset scrolling me difference kya hai?
+23. LIKE query me escape kaise karte hain agar user input dangerous hai?
+24. Query hint lagake readOnly vaccine query kaise banate hain?
+25. Multiple filters (Company + Price) lagake query kaise define karoge?
+
+#### 📘 Final Few Conceptual
+
+26. Derived delete query kya hota hai?
+27. Modifying query me auto clear karna kab zaruri hota hai?
+28. Native query me SQL injection se kaise bachte hain?
+29. NamedQuery aur @Query me kya difference hai?
+30. Scrolling query me window size ka kya impact hota hai?
+
+## ✅ Final Deliverables Ready
+
+| Item                            | Status |
+| :------------------------------ | :----- |
+| Full Table + Examples           | ✅     |
+| Vaccine Real Data Based Queries | ✅     |
+| 30 Practice Questions           | ✅     |
+
+## 📊 Vaccine Data Query Examples
+
+### ✅ Step-1: Vaccine Table (Original Data)
+
+| id  | company               | price | vaccine_name    |
+| --- | --------------------- | ----- | --------------- |
+| 252 | Bharat Biotech        | 1200  | Covaxin         |
+| 253 | AstraZeneca           | 800   | Covishield      |
+| 254 | Gamaleya Research     | 1000  | Sputnik V       |
+| 255 | Moderna Inc.          | 1500  | Moderna         |
+| 256 | Pfizer-BioNTech       | 1800  | Pfizer          |
+| 257 | Sinovac Biotech       | 1100  | Sinovac         |
+| 258 | China National        | 1050  | Sinopharm       |
+| 259 | Johnson & Johnson     | 1400  | Janssen         |
+| 260 | Novavax Inc.          | 1300  | Novavax         |
+| 261 | CanSino Biologics     | 950   | CanSino         |
+| 262 | VECTOR Institute      | 900   | EpiVacCorona    |
+| 263 | Serum Institute       | 1150  | Covovax         |
+| 264 | Zydus Cadila          | 1250  | ZyCoV-D         |
+| 265 | Cuba Center           | 950   | Abdala          |
+| 266 | Cuba Finlay Institute | 970   | Soberana 02     |
+| 267 | Sinopharm             | 1020  | BBIBP-CorV      |
+| 268 | Biological E Ltd.     | 850   | Corbevax        |
+| 269 | Novavax               | 1350  | Nuvaxovid       |
+| 270 | Sanofi-GSK            | 1450  | VidPrevtyn Beta |
+| 271 | Kazakhstan Research   | 800   | QazVac          |
+
+### ✅ Step-2: Method Table (Which Method Use → Kya Milega)
+
+| Keyword      | Method Example                                         | Matlab kya hai?                                   |
+| :----------- | :----------------------------------------------------- | :------------------------------------------------ |
+| And          | `findByCompanyAndPrice("Bharat Biotech", 1200)`        | Bharat Biotech aur price 1200 wala vaccine        |
+| Or           | `findByCompanyOrPrice("Novavax", 1300)`                | Company Novavax ya Price 1300 match               |
+| LessThan     | `findByPriceLessThan(1000)`                            | Price 1000 se kam wale vaccines                   |
+| GreaterThan  | `findByPriceGreaterThan(1300)`                         | Price 1300 se jyada wale vaccines                 |
+| Between      | `findByPriceBetween(900, 1200)`                        | Price 900 se 1200 ke beech wale vaccines          |
+| StartingWith | `findByCompanyStartingWith("Cuba")`                    | Company name Cuba se start hone wale              |
+| EndingWith   | `findByCompanyEndingWith("Institute")`                 | Company name Institute pe end hone wale           |
+| Containing   | `findByCompanyContaining("Biotech")`                   | Company name me Biotech word hone wale            |
+| OrderBy      | `findByCompanyOrderByPriceAsc("Novavax")`              | Novavax company ke vaccines ko price ascending me |
+| Not          | `findByCompanyNot("Pfizer-BioNTech")`                  | Sare vaccines except Pfizer-BioNTech              |
+| In           | `findByCompanyIn(["Moderna Inc.", "Pfizer-BioNTech"])` | Moderna aur Pfizer ke vaccines                    |
+| IgnoreCase   | `findByCompanyIgnoreCase("pfizer-biontech")`           | Company name case insensitive match               |
+
+### ✅ Step-3: Find karke Real Result Table (Direct Output)
+
+| Method Example                                         | Result                                                                                        |
+| :----------------------------------------------------- | :-------------------------------------------------------------------------------------------- |
+| `findByCompanyAndPrice("Bharat Biotech", 1200)`        | Covaxin                                                                                       |
+| `findByPriceLessThan(1000)`                            | Covishield, Sputnik V, EpiVacCorona, CanSino, Abdala, Cuba Finlay Institute, Corbevax, QazVac |
+| `findByPriceGreaterThan(1300)`                         | Pfizer, Janssen, Novavax, VidPrevtyn Beta                                                     |
+| `findByPriceBetween(900, 1200)`                        | Sputnik V, Sinovac, Sinopharm, EpiVacCorona, Covovax                                          |
+| `findByCompanyStartingWith("Cuba")`                    | Abdala, Soberana 02                                                                           |
+| `findByCompanyEndingWith("Institute")`                 | VECTOR Institute, Cuba Finlay Institute, Serum Institute                                      |
+| `findByCompanyContaining("Biotech")`                   | Bharat Biotech, Sinovac Biotech                                                               |
+| `findByCompanyOrderByPriceAsc("Novavax")`              | Novavax, Nuvaxovid                                                                            |
+| `findByCompanyNot("Pfizer-BioNTech")`                  | All except Pfizer                                                                             |
+| `findByCompanyIn(["Moderna Inc.", "Pfizer-BioNTech"])` | Moderna, Pfizer                                                                               |
+| `findByCompanyIgnoreCase("pfizer-biontech")`           | Pfizer                                                                                        |
+
+### ✅ Summary
+
+| Table   | Kya diya gaya?                       |
+| :------ | :----------------------------------- |
+| Table-1 | Clean Vaccine Data                   |
+| Table-2 | Method ka use aur kya karega         |
+| Table-3 | Actual findBy queries ka real output |
