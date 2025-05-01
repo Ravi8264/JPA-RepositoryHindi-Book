@@ -8,9 +8,11 @@ Backend application banane mein sabse important cheez hoti hai — data ko store
 
 Agar hum traditional JDBC ka use karein, to kaafi manual coding karni padti hai jaise:
 
-- Database connection banana
-- SQL queries likhna
-- ResultSet handle karna
+| Manual JDBC Tasks          | Spring Data JPA Tasks           |
+| -------------------------- | ------------------------------- |
+| Database connection banana | Automatic connection management |
+| SQL queries likhna         | No SQL needed                   |
+| ResultSet handle karna     | Automatic mapping               |
 
 Ye process tedious aur error-prone hota hai.
 
@@ -18,39 +20,25 @@ Spring Data JPA humari life easy bana deta hai. Iske through hum kam code likh k
 
 ### 1.2 Apna Project Kaise Setup Kare?
 
-Spring Data JPA project banana bohot aasaan hai. Do tareeke hote hain:
+Spring Data JPA project banana bohot aasaan hai. Do tareeke hain:
 
-#### 1.2.1 start.spring.io se Project Banana
-
-start.spring.io ek website hai jahan se hum Spring Boot project bana sakte hain.
-
-Bas kuch basic details bharni hoti hain jaise:
-
-- Project type (Maven ya Gradle)
-- Java language
-- Dependencies: Spring Web, Spring Data JPA, aur Database Driver
-
-Project generate karne ke baad zip file download hoti hai, jisko IDE (jaise IntelliJ, Eclipse) mein import karte hain.
+| Setup Method       | Steps                                                                                  | Time Required |
+| ------------------ | -------------------------------------------------------------------------------------- | ------------- |
+| start.spring.io    | 1. Project details bharein<br>2. Dependencies select karein<br>3. Download & import    | 5 minutes     |
+| Spring Tools Suite | 1. New → Spring Starter Project<br>2. Details bharein<br>3. Dependencies select karein | 3 minutes     |
 
 ✅ 5 minute mein ek ready project mil jata hai.
-
-#### 1.2.2 Spring Tools Suite (STS) se Project Banana
-
-Agar tum Spring Tools Suite (STS) IDE use karte ho to aur aasaan hai.
-
-New → Spring Starter Project create karo.
-Project ka naam aur dependencies select karo.
-Aur project tumhare workspace mein aa jata hai ready-made.
-
-✅ STS beginner-friendly IDE hai, specially Spring projects ke liye.
 
 ### 1.3 Example Practice Ke Liye
 
 Agar tumko practice karni hai, to Spring Data ke official examples ka ek repository available hota hai.
 Usme kaafi real-world based small projects diye hote hain jaise CRUD operation, custom queries waale.
 
-Tum un projects ko download karke khud se run kar sakte ho.
-Aur apna concept clear kar sakte ho.
+| Practice Type  | Description      | Best For     |
+| -------------- | ---------------- | ------------ |
+| CRUD Examples  | Basic operations | Beginners    |
+| Custom Queries | Complex queries  | Intermediate |
+| Real Projects  | Complete apps    | Advanced     |
 
 ✅ Best way seekhne ka hai — khud run kar ke dekhna.
 
@@ -71,12 +59,11 @@ class Person {
 }
 ```
 
-**Samjhaav:**
-
-- `@Entity`: Ye class ko database table se map karta hai.
-- `@Id`: Id field ko primary key banata hai.
-- `@GeneratedValue`: Id automatically generate hogi jab record create hoga.
-- `private String name`: Ek normal field hai jisme person ka naam store hoga.
+| Annotation      | Purpose                         | Example                          |
+| --------------- | ------------------------------- | -------------------------------- |
+| @Entity         | Database table se map karta hai | @Entity class Person             |
+| @Id             | Primary key banata hai          | @Id private Long id              |
+| @GeneratedValue | Auto ID generation              | @GeneratedValue(strategy = AUTO) |
 
 ✅ Ab Person class ka har object database mein ek record banega.
 
@@ -89,12 +76,10 @@ interface PersonRepository extends Repository<Person, Long> {
 }
 ```
 
-**Samjhaav:**
-
-- Ye interface Repository ko extend karta hai.
-- `save()` method naya Person object database mein save karega.
-- `findById()` method id ke basis pe Person object database se laayega.
-- Spring khud iska implementation bana dega, hume manually kuch likhne ki zarurat nahi.
+| Method     | Purpose            | Return Type      |
+| ---------- | ------------------ | ---------------- |
+| save()     | Save/update person | Person           |
+| findById() | Find by ID         | Optional<Person> |
 
 ✅ Tum easily apne data ko store aur fetch kar sakte ho without SQL.
 
@@ -120,34 +105,33 @@ public class DemoApplication {
 }
 ```
 
-**Samjhaav:**
-
-- `@SpringBootApplication`: Ye batata hai ki ye Spring Boot application hai.
-- `main()`: Application start hoti hai.
-- `@Bean CommandLineRunner`: Jab application run hoti hai, ye method automatically execute hota hai.
-- `new Person()`: Naya object banaate hain aur uska naam "John" set karte hain.
-- `repository.save()`: Database mein save karte hain.
-- `repository.findById()`: Us person ko id ke basis pe database se fetch karte hain.
+| Annotation             | Purpose                            | Example                                      |
+| ---------------------- | ---------------------------------- | -------------------------------------------- |
+| @SpringBootApplication | Spring Boot app identify karta hai | @SpringBootApplication class DemoApplication |
+| @Bean                  | Spring bean define karta hai       | @Bean CommandLineRunner                      |
+| CommandLineRunner      | Application start pe run hota hai  | CommandLineRunner runner()                   |
 
 ✅ Pura ek chhota sa CRUD operation ka flow ready hai.
 
 ### 1.5 Important Points
 
-- Repository ka implementation automatic hota hai: Tum sirf interface banao, class Spring khud banata hai.
-- `@Autowired` ya `@Bean` ke andar injection automatic hota hai.
-- CommandLineRunner ka use startup ke time pe koi kaam karne ke liye hota hai (jaise data insert karna).
-- Optional handling karna important hai jab record fetch karte hain.
+| Point               | Description                                     | Example                                |
+| ------------------- | ----------------------------------------------- | -------------------------------------- |
+| Auto Implementation | Repository ka implementation automatic hota hai | No need to write implementation class  |
+| Auto Wiring         | @Autowired/@Bean ke through injection           | @Autowired PersonRepository repository |
+| CommandLineRunner   | Startup time pe kaam karne ke liye              | @Bean CommandLineRunner                |
+| Optional Handling   | Record fetch karte waqt important               | Optional<Person> findById()            |
 
 ### 1.6 Extra Knowledge
 
 Spring Data JPA mein different type ke repository interfaces available hain:
 
-| Interface Name     | Kaam                                                 |
-| ------------------ | ---------------------------------------------------- |
-| Repository         | Basic level operations                               |
-| CrudRepository     | Basic CRUD operations (Create, Read, Update, Delete) |
-| ListCrudRepository | CRUD + List based operations                         |
-| JpaRepository      | CRUD + Pagination + Sorting (Advance Level)          |
+| Interface Name     | Features                    | Best For    |
+| ------------------ | --------------------------- | ----------- |
+| Repository         | Basic operations            | Simple apps |
+| CrudRepository     | CRUD operations             | Small apps  |
+| ListCrudRepository | CRUD + List operations      | Medium apps |
+| JpaRepository      | CRUD + Pagination + Sorting | Large apps  |
 
 ✅ Small project ke liye Repository aur CrudRepository kaafi hote hain.
 ✅ Big projects mein mostly JpaRepository ka use hota hai.
@@ -2125,3 +2109,1684 @@ public class PersonController {
 | API Endpoints dikhaye            | ✅     |
 | JSON Output Examples diye        | ✅     |
 | Practice Questions diye          | ✅     |
+
+## 📘 Chapter: Stored Procedures in JPA (Book-Style Hindi Mein)
+
+### 🔹 Stored Procedure kya hota hai?
+
+Stored Procedure ek pre-written SQL function hota hai jo database ke andar save rehta hai. Jab bhi aapko complex logic ya repetitive query chalani ho — toh aap sirf procedure ka naam call karke kaam kar sakte ho.
+
+### 🔹 JPA ke through Stored Procedure ka use kaise hota hai?
+
+JPA 2.1 se `@Procedure` aur `@NamedStoredProcedureQuery` ke madhyam se stored procedures ko Java code se call kar sakte ho — bina JDBC boilerplate code likhe.
+
+### ✅ Step 1: SQL Stored Procedure likhna
+
+```sql
+-- agar pehle se hai toh hata do
+DROP PROCEDURE IF EXISTS plus1inout;
+
+-- procedure banayein
+CREATE PROCEDURE plus1inout(IN arg INT, OUT res INT)
+BEGIN
+  SET res = arg + 1;
+END;
+```
+
+☝️ Iska matlab hai: jo bhi number `arg` mein doge, woh 1 add karke `res` mein milega.
+
+### ✅ Step 2: JPA Entity mein Metadata dena
+
+```java
+@Entity
+@NamedStoredProcedureQuery(
+  name = "User.plus1",
+  procedureName = "plus1inout",
+  parameters = {
+    @StoredProcedureParameter(mode = ParameterMode.IN, name = "arg", type = Integer.class),
+    @StoredProcedureParameter(mode = ParameterMode.OUT, name = "res", type = Integer.class)
+  }
+)
+public class User {
+  @Id
+  private Long id;
+}
+```
+
+📌 `name`: JPA ke andar stored procedure ka naam  
+📌 `procedureName`: Actual DB stored procedure ka naam  
+📌 `parameters`: procedure ke inputs/outputs
+
+### ✅ Step 3: Repository Method banana
+
+```java
+public interface UserRepository extends JpaRepository<User, Long> {
+
+  @Procedure(name = "User.plus1")
+  Integer plus1inout(@Param("arg") Integer arg);
+}
+```
+
+☝️ Is method ko call karoge to database procedure run karega aur `arg + 1` return karega.
+
+## 🧩 Multiple OUT Parameters Example
+
+### ✅ SQL Procedure:
+
+```sql
+CREATE PROCEDURE multi_out(IN input INT, OUT doubled INT, OUT message VARCHAR(100))
+BEGIN
+  SET doubled = input * 2;
+  SET message = 'Success';
+END;
+```
+
+### ✅ Entity Configuration:
+
+```java
+@NamedStoredProcedureQuery(
+  name = "User.multi_out",
+  procedureName = "multi_out",
+  parameters = {
+    @StoredProcedureParameter(mode = ParameterMode.IN, name = "input", type = Integer.class),
+    @StoredProcedureParameter(mode = ParameterMode.OUT, name = "doubled", type = Integer.class),
+    @StoredProcedureParameter(mode = ParameterMode.OUT, name = "message", type = String.class)
+  }
+)
+```
+
+### ✅ Repository Method:
+
+```java
+@Procedure(name = "User.multi_out")
+Map<String, Object> getMultiOutput(@Param("input") Integer input);
+```
+
+Output:
+
+```json
+{
+  "doubled": 20,
+  "message": "Success"
+}
+```
+
+## 📊 ParameterMode Meaning
+
+| ParameterMode | Explanation (Hindi mein)              |
+| ------------- | ------------------------------------- |
+| IN            | Java se value DB ko bhejna            |
+| OUT           | DB se value Java mein laana           |
+| INOUT         | Dono direction mein value ka flow     |
+| REF_CURSOR    | Cursor result return (PostgreSQL etc) |
+
+## 📘 Interview ke liye 20 Questions + Answers Table
+
+| No. | Question                                                          | Answer                                                          |
+| --- | ----------------------------------------------------------------- | --------------------------------------------------------------- |
+| 1   | Stored Procedure kya hota hai?                                    | Predefined SQL code jo DB mein store hota hai.                  |
+| 2   | JPA mein procedure metadata kaunsi annotation se banti hai?       | `@NamedStoredProcedureQuery`                                    |
+| 3   | Repository method pe procedure kaise call karte hain?             | `@Procedure` annotation se                                      |
+| 4   | ParameterMode.IN ka matlab?                                       | Java se input parameter bhejna                                  |
+| 5   | ParameterMode.OUT ka matlab?                                      | Database se output parameter lena                               |
+| 6   | Agar 1 output ho toh return type kya hoga?                        | Integer, String etc.                                            |
+| 7   | Agar multiple OUT parameters ho to return type kya hoga?          | `Map<String, Object>`                                           |
+| 8   | Kya procedure se ResultSet return ho sakta hai?                   | Haan, REF_CURSESTOR se                                          |
+| 9   | `procedureName` aur `name` mein farak?                            | `procedureName` DB ka naam, `name` JPA ka naam hota hai         |
+| 10  | Agar method name same ho toh `@Procedure` mein kya likhna padega? | Kuch nahi likhna padta, method name se match ho jaata hai       |
+| 11  | Procedure ka output agar optional ho to kya karein?               | OUT parameter use karo                                          |
+| 12  | @Param ka kya use hai?                                            | Method argument ko procedure ke parameter se bind karna         |
+| 13  | Multiple OUT values kaise receive karte hain?                     | `Map<String, Object>` return karke                              |
+| 14  | Agar koi value return nahi hoti ho to method ka return kya ho?    | `void`                                                          |
+| 15  | Procedure testing ke liye kaunsa database use ho sakta hai?       | H2 in-memory DB ya MySQL                                        |
+| 16  | Kya procedure DTO return kar sakta hai?                           | Advanced mapping ke sath haan, @SqlResultSetMapping se          |
+| 17  | Procedure ke saath SpEL ya Expression chalega kya?                | Nahi, procedure static hote hain                                |
+| 18  | Kya `@Procedure` @Transactional hona chahiye?                     | Haan, agar data update/delete ho raha ho                        |
+| 19  | Spring Boot mein procedure ka configuration kaise hota hai?       | Entity class par annotation aur repository par method           |
+| 20  | Agar method aur procedure name match nahi karein to?              | `@Procedure(name="...")` ya `procedureName="..."` likhna padega |
+
+## ✅ Summary
+
+- Use `@NamedStoredProcedureQuery` in Entity
+- Use `@Procedure` in Repository
+- Use `Map<String, Object>` for multiple OUT
+- Test with H2 DB or MySQL
+- Procedure ka naam aur method ka naam alag ho sakta hai
+
+## 📘 Chapter: Specifications in Spring Data JPA (Book-Style Hindi Mein)
+
+### 🔹 Step 1: SQL Table Example
+
+Hum ek customer table assume karte hain:
+
+📋 SQL Table: customer
+| id | name | created_at | total_purchase |
+|----|-------------|-------------|----------------|
+| 1 | Ravi Kumar | 2020-01-15 | 500.00 |
+| 2 | Vani Priya | 2023-03-10 | 100.00 |
+| 3 | Arjun Verma | 2018-09-20 | 1200.00 |
+| 4 | Neha Sharma | 2022-08-01 | 150.00 |
+
+🧠 Ab Requirement
+Humko chahiye:
+
+- Wo customers jo 2 saal se purane hain (long-term)
+- Ya jinki total_purchase > 200 ho
+
+### 🔹 Step 2: Entity Class
+
+```java
+@Entity
+public class Customer {
+
+  @Id
+  private Long id;
+
+  private String name;
+
+  private LocalDate createdAt;
+
+  private BigDecimal totalPurchase;
+
+  // getters-setters
+}
+```
+
+### 🔹 Step 3: Repository
+
+```java
+public interface CustomerRepository extends
+    JpaRepository<Customer, Long>,
+    JpaSpecificationExecutor<Customer> {
+}
+```
+
+### 🔹 Step 4: Specification Class
+
+```java
+public class CustomerSpecs {
+
+  // 1. Long-term customer: createdAt < today - 2 years
+  public static Specification<Customer> isLongTermCustomer() {
+    return (root, query, builder) -> {
+      LocalDate date = LocalDate.now().minusYears(2);
+      return builder.lessThan(root.get("createdAt"), date);
+    };
+  }
+
+  // 2. Total purchase > 200
+  public static Specification<Customer> hasSalesOfMoreThan(BigDecimal value) {
+    return (root, query, builder) ->
+      builder.greaterThan(root.get("totalPurchase"), value);
+  }
+}
+```
+
+### 🔹 Step 5: Use Case in Service
+
+```java
+@Autowired
+CustomerRepository customerRepository;
+
+public List<Customer> getFilteredCustomers() {
+  BigDecimal amount = new BigDecimal("200.00");
+
+  return customerRepository.findAll(
+      CustomerSpecs.isLongTermCustomer()
+      .or(CustomerSpecs.hasSalesOfMoreThan(amount))
+  );
+}
+```
+
+### 💥 Real SQL Query Generated (approximate)
+
+```sql
+SELECT * FROM customer
+WHERE created_at < '2023-05-01' OR total_purchase > 200.00;
+```
+
+### 🔹 Step 6: Delete Example
+
+```java
+Specification<Customer> deleteUnder18 = (root, query, cb) ->
+    cb.lessThan(root.get("age").as(Integer.class), 18);
+
+customerRepository.delete(deleteUnder18);
+```
+
+⚠️ Note: This works only in Spring Data JPA with JPA 2.1+, and returns number of rows deleted.
+
+### 📘 Summary Table
+
+| Concept                  | Meaning (Hindi Mein)                                        |
+| ------------------------ | ----------------------------------------------------------- |
+| Specification            | Ek programmatic condition jo query banata hai               |
+| CriteriaBuilder          | JPA ka query builder                                        |
+| Predicate                | WHERE clause ka logical expression                          |
+| JpaSpecificationExecutor | Repository interface jo specifications ko support karta hai |
+| toPredicate              | Method jisme criteria banate hain                           |
+| findAll(Specification)   | Sab matching results laata hai                              |
+| delete(Specification)    | JPA 2.1 mein matching data delete kar deta hai              |
+
+### ❓ Interview Practice Questions
+
+1. Specification kya hota hai Spring Data JPA mein?
+2. toPredicate method ka kya kaam hota hai?
+3. CriteriaBuilder aur Predicate ka relation kya hai?
+4. Specification pattern ka fayda kya hai compared to @Query?
+5. delete(Specification) method kab se available hai?
+6. CriteriaBuilder.lessThan() ka kya use hai?
+7. Specification objects ko kaise chain karte ho?
+8. .or(...), .and(...) specification methods kya karte hain?
+9. Specification ke bina where clause kaise likhte ho?
+10. CriteriaBuilder.greaterThan() kis datatype ke liye use karte ho?
+
+## 🔷 Query by Example (QBE) kya hota hai?
+
+QBE ek simple tarika hai query likhne ka jisme hume field name ya SQL likhne ki jarurat nahi padti.
+
+**Bas ek object banao** jisme jo values match karni hai wo fill karo — baaki Spring Data JPA khud se query bana lega.
+
+## 🔷 Chaaro main part hota hai QBE ke:
+
+| Part                        | Kya karta hai                                                     |
+| --------------------------- | ----------------------------------------------------------------- |
+| **1. Probe**                | Ek domain object jisme matching value daali jaati hai             |
+| **2. ExampleMatcher**       | Batata hai kaise match karna hai (like endsWith, ignoreCase etc.) |
+| **3. Example**              | Probe + Matcher milke banta hai Example                           |
+| **4. FetchableFluentQuery** | Aur control deta hai jaise sort, project, pagination              |
+
+## 🔷 Ek table leke samjho (SQL Table):
+
+```sql
+CREATE TABLE person (
+  id VARCHAR PRIMARY KEY,
+  firstname VARCHAR,
+  lastname VARCHAR,
+  city VARCHAR
+);
+```
+
+| id  | firstname | lastname | city   |
+| --- | --------- | -------- | ------ |
+| 1   | Ravi      | Kumar    | Delhi  |
+| 2   | Vani      | Priya    | Mumbai |
+| 3   | Raj       | Malhotra | Delhi  |
+| 4   | Vani      | Singh    | Patna  |
+
+## 🔷 Java Entity Class:
+
+```java
+@Entity
+public class Person {
+  @Id
+  private String id;
+  private String firstname;
+  private String lastname;
+  private String city;
+}
+```
+
+## 🔷 Step-by-step QBE
+
+### 🟢 Step 1: Probe object banao
+
+```java
+Person probe = new Person();
+probe.setFirstname("Vani");
+```
+
+### 🟢 Step 2: Example banao
+
+```java
+Example<Person> example = Example.of(probe);
+```
+
+### 🟢 Step 3: Query chalao
+
+```java
+List<Person> list = personRepository.findAll(example);
+```
+
+📌 Ye query SQL me convert hoga:
+
+```sql
+SELECT * FROM person WHERE firstname = 'Vani';
+```
+
+## 🔷 ExampleMatcher ka use:
+
+```java
+ExampleMatcher matcher = ExampleMatcher.matching()
+  .withIgnorePaths("lastname")
+  .withStringMatcher(StringMatcher.CONTAINING)
+  .withIgnoreCase();
+```
+
+📌 isse ye query milegi:
+
+```sql
+SELECT * FROM person WHERE LOWER(firstname) LIKE '%vani%';
+```
+
+## 🔷 Fluent API ka use:
+
+```java
+Optional<Person> result = personRepository.findBy(
+  example,
+  q -> q.sortBy(Sort.by("lastname").descending()).first()
+);
+```
+
+## 🔷 Matching Options Table (Important):
+
+| Matcher      | Query Result SQL Like |
+| ------------ | --------------------- |
+| DEFAULT      | firstname = ?         |
+| EXACT        | firstname = ?         |
+| STARTING     | firstname LIKE ?%     |
+| ENDING       | firstname LIKE %?     |
+| CONTAINING   | firstname LIKE %?%    |
+| + IgnoreCase | LOWER(fname) used     |
+
+## 🔷 20 Questions for Practice (Book-style)
+
+| #   | Question                                           |
+| --- | -------------------------------------------------- |
+| 1   | QBE kya hota hai?                                  |
+| 2   | Probe object kisliye banate hain?                  |
+| 3   | Example aur ExampleMatcher ka kya role hai?        |
+| 4   | findAll(Example.of(probe)) kya karta hai?          |
+| 5   | ExampleMatcher.matchingAny() ka matlab?            |
+| 6   | withIgnorePaths("city") ka use kya hai?            |
+| 7   | CONTAINING match ka output kya hoga?               |
+| 8   | IgnoreCase lagane ka fayda kya hai?                |
+| 9   | fetchableFluentQuery kyu use karte hain?           |
+| 10  | findBy(...) ke 2nd parameter ka use?               |
+| 11  | Kaise multiple properties match karte ho?          |
+| 12  | QBE me nested object match hota hai kya?           |
+| 13  | Regex QBE me supported hai ya nahi?                |
+| 14  | Default matcher behaviour kya hai?                 |
+| 15  | QBE me pagination kaise karte ho?                  |
+| 16  | startsWith() aur endsWith() me difference?         |
+| 17  | ExampleMatcher me ignoreNullValue ka kya use hai?  |
+| 18  | FluentQuery ke first() aur one() ka farq?          |
+| 19  | QBE kis case me fail hota hai?                     |
+| 20  | QBE vs normal JPQL: kab kaun use karna better hai? |
+
+## 🔷 Transactionality in Spring Data JPA - Complete Guide
+
+### 🤔 What is Transactionality?
+
+When we perform any database operations (read/write/update/delete), they should be wrapped in a **transaction** to maintain data **consistency**.
+
+In Spring Data JPA, we use the `@Transactional` annotation to manage transactions.
+
+## 🔹 Default Transaction Configuration
+
+| Method Type                | Default Transaction Config        |
+| -------------------------- | --------------------------------- |
+| findById(), findAll()      | `@Transactional(readOnly = true)` |
+| save(), delete(), update() | `@Transactional` (no readOnly)    |
+
+This default configuration is inherited from **SimpleJpaRepository**.
+
+## 🔷 Example Table (User Table)
+
+```sql
+CREATE TABLE users (
+  id BIGINT PRIMARY KEY,
+  name VARCHAR(100),
+  active BOOLEAN
+);
+```
+
+## 📚 Transactionality in Spring Data JPA - 20 Questions with Answers
+
+### 1. Transaction kya hota hai Spring Data JPA mein?
+
+Transaction ek atomic unit of work hota hai jisme multiple database operations ek sath execute hote hain. Agar koi bhi operation fail hota hai, to saare operations rollback ho jaate hain. Transaction ka main purpose data consistency maintain karna hota hai.
+
+### 2. @Transactional annotation ka kya use hota hai?
+
+@Transactional annotation Spring ko batata hai ki ye method transaction ke andar execute hona chahiye. Ye annotation method ya class level pe lagaya ja sakta hai. Iske through hum transaction management ko declarative way mein handle kar sakte hain.
+
+### 3. Transaction ke main properties kya hote hain?
+
+Transaction ke 4 main properties hote hain (ACID):
+
+- Atomicity: Ya to saare operations success honge ya koi nahi
+- Consistency: Database ek valid state se dusre valid state mein jaayega
+- Isolation: Concurrent transactions ek dusre ko affect nahi karenge
+- Durability: Once committed, changes permanent hote hain
+
+### 4. Transaction propagation kya hota hai?
+
+Transaction propagation batata hai ki agar ek transaction already chal raha hai, to naya transaction kaise behave karega. Kuch common propagation types:
+
+- REQUIRED (default): Existing transaction use karega, nahi to naya banayega
+- REQUIRES_NEW: Hamesha naya transaction banayega
+- NESTED: Existing transaction ke andar nested transaction banayega
+- SUPPORTS: Existing transaction use karega, nahi to transaction ke bina chalega
+
+### 5. Transaction isolation level kya hota hai?
+
+Isolation level batata hai ki ek transaction dusre concurrent transactions se kitna isolated hai. Common levels:
+
+- READ_UNCOMMITTED: Sabse kam isolation
+- READ_COMMITTED: Default level
+- REPEATABLE_READ: Higher isolation
+- SERIALIZABLE: Sabse zyada isolation
+
+### 6. @Transactional mein timeout kaise set karte hain?
+
+Timeout set karne ke liye @Transactional annotation mein timeout property use karte hain:
+
+```java
+@Transactional(timeout = 30) // 30 seconds
+public void someMethod() {
+    // method code
+}
+```
+
+### 7. Transaction rollback kaise hota hai?
+
+Transaction automatically rollback ho jata hai agar:
+
+- Runtime exception aati hai
+- Error aata hai
+- @Transactional(rollbackFor = Exception.class) mein specified exception aati hai
+
+### 8. Transaction ke saath exception handling kaise karein?
+
+Exception handling ke liye:
+
+```java
+@Transactional(rollbackFor = {SQLException.class, DataAccessException.class})
+public void someMethod() {
+    try {
+        // database operations
+    } catch (Exception e) {
+        // handle exception
+    }
+}
+```
+
+### 9. Nested transactions kaise kaam karte hain?
+
+Nested transactions ke liye @Transactional(propagation = Propagation.NESTED) use karte hain. Agar outer transaction rollback hota hai to nested transaction bhi rollback ho jata hai.
+
+### 10. Transaction ke saath readOnly property ka kya use hai?
+
+readOnly = true set karne se performance improve hoti hai kyunki:
+
+- Hibernate dirty checking nahi karta
+- Database locks nahi lagte
+- Optimizations apply hote hain
+
+### 11. Multiple databases ke saath transaction kaise handle karein?
+
+Multiple databases ke liye:
+
+- XA transactions use karein
+- JTA (Java Transaction API) use karein
+- @Transactional(transactionManager = "specificTransactionManager") use karein
+
+### 12. Transaction ke saath pagination kaise karein?
+
+Pagination ke liye:
+
+```java
+@Transactional(readOnly = true)
+public Page<Entity> getPaginatedData(Pageable pageable) {
+    return repository.findAll(pageable);
+}
+```
+
+### 13. Transaction ke saath batch operations kaise karein?
+
+Batch operations ke liye:
+
+```java
+@Transactional
+public void batchInsert(List<Entity> entities) {
+    for (Entity entity : entities) {
+        repository.save(entity);
+    }
+}
+```
+
+### 14. Transaction ke saath optimistic locking kaise implement karein?
+
+Optimistic locking ke liye:
+
+```java
+@Entity
+public class Entity {
+    @Version
+    private Long version;
+    // other fields
+}
+```
+
+### 15. Transaction ke saath pessimistic locking kaise implement karein?
+
+Pessimistic locking ke liye:
+
+```java
+@Lock(LockModeType.PESSIMISTIC_WRITE)
+@Query("select e from Entity e where e.id = :id")
+Entity findByIdForUpdate(@Param("id") Long id);
+```
+
+### 16. Transaction ke saath auditing kaise implement karein?
+
+Auditing ke liye:
+
+```java
+@EntityListeners(AuditingEntityListener.class)
+@Entity
+public class Entity {
+    @CreatedDate
+    private LocalDateTime createdDate;
+    @LastModifiedDate
+    private LocalDateTime lastModifiedDate;
+}
+```
+
+### 17. Transaction ke saath caching kaise implement karein?
+
+Caching ke liye:
+
+```java
+@Cacheable("entities")
+@Transactional(readOnly = true)
+public Entity findById(Long id) {
+    return repository.findById(id).orElse(null);
+}
+```
+
+### 18. Transaction ke saath retry mechanism kaise implement karein?
+
+Retry mechanism ke liye:
+
+```java
+@Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000))
+@Transactional
+public void someMethod() {
+    // method code
+}
+```
+
+### 19. Transaction ke saath validation kaise implement karein?
+
+Validation ke liye:
+
+```java
+@Validated
+@Transactional
+public void saveEntity(@Valid Entity entity) {
+    repository.save(entity);
+}
+```
+
+### 20. Transaction ke saath performance optimization kaise karein?
+
+Performance optimization ke liye:
+
+- readOnly = true use karein where possible
+- Batch operations use karein
+- Proper indexing karein
+- Lazy loading use karein
+- Caching implement karein
+- Connection pooling use karein
+
+## 📘 Transactionality – Spring Data JPA
+
+### 🔹 1. CrudRepository ke methods ka by default transaction behaviour
+
+Spring Data JPA me jo methods `CrudRepository` se inherit hote hai (jaise `findAll()`, `save()`, `delete()`), unpe already `@Transactional` annotation apply hota hai.
+
+- **Read methods** (jaise `findAll`, `findById`) ke upar:  
+  ➤ `@Transactional(readOnly = true)` laga hota hai.  
+  ➤ Matlab: Ye method sirf data padhega, kuch change nahi karega.
+
+- **Write methods** (jaise `save`, `delete`):  
+  ➤ `@Transactional` hota hai without `readOnly = true`.  
+  ➤ Matlab: Ye data ko update ya delete bhi kar sakta hai.
+
+### 🔹 2. Agar kisi method ka transaction alag rakhna ho toh?
+
+Agar tumhe kisi specific method ka transaction alag tarike se set karna hai (jaise timeout, readOnly false karna), toh tum us method ko **redeclare** kar sakte ho apne interface me.
+
+#### ✅ Example:
+
+```java
+public interface UserRepository extends CrudRepository<User, Long> {
+
+  @Override
+  @Transactional(timeout = 10)
+  public List<User> findAll();
+}
+```
+
+📌 Iska matlab:
+
+- `findAll()` method ab 10 second me complete hona chahiye.
+- Ab ye method `readOnly` bhi nahi hai, matlab data change bhi kar sakta hai.
+
+### 🔹 3. Service ya Facade use karke transactions define karna (Best Practice)
+
+Zyada tar production code me **repository me transaction lagane ke bajaye**, ek **Service class** banti hai jisme `@Transactional` use hota hai. Ye class ek ya zyada repositories ke methods ko call karti hai.
+
+#### ✅ Example:
+
+```java
+@Service
+public class UserManagementImpl implements UserManagement {
+
+  private final UserRepository userRepository;
+  private final RoleRepository roleRepository;
+
+  public UserManagementImpl(UserRepository userRepository, RoleRepository roleRepository) {
+    this.userRepository = userRepository;
+    this.roleRepository = roleRepository;
+  }
+
+  @Transactional
+  public void addRoleToAllUsers(String roleName) {
+    Role role = roleRepository.findByName(roleName);
+
+    for (User user : userRepository.findAll()) {
+      user.addRole(role);
+      userRepository.save(user);
+    }
+  }
+}
+```
+
+📌 Samjho:
+
+- Ye pura `addRoleToAllUsers()` method ek hi transaction ke andar chalega.
+- Agar beech me kuch fail ho gaya toh sab rollback ho jayega.
+- `userRepository` aur `roleRepository` dono ke andar ke transaction config ignore ho jayenge.
+- Sirf service wale method ka `@Transactional` chalega.
+
+📌 Note: `@EnableTransactionManagement` jaroor hona chahiye config me.
+
+### 🔹 4. Query methods me @Transactional ka use
+
+Spring Data JPA me query methods (jaise `findByLastname`) pe by default koi transaction config nahi hota. Agar tumhe `readOnly` ya `write` config chahiye toh tum `@Transactional` manually laga sakte ho.
+
+#### ✅ Example:
+
+```java
+@Transactional(readOnly = true)
+interface UserRepository extends JpaRepository<User, Long> {
+
+  List<User> findByLastname(String lastname);
+
+  @Modifying
+  @Transactional
+  @Query("delete from User u where u.active = false")
+  void deleteInactiveUsers();
+}
+```
+
+📌 Samjho:
+
+- `findByLastname()` sirf data read karega → `readOnly=true` lagaya.
+- `deleteInactiveUsers()` ek delete query hai → `@Modifying` + `@Transactional` lagana zaroori hai.
+
+### 🔹 5. readOnly=true ka real kaam kya hai?
+
+- Ye **performance optimization** ke liye hota hai.
+- JDBC driver aur Hibernate ko batata hai ki ye query sirf read kar rahi hai, kuch write nahi.
+- Agar Hibernate use ho raha hai, toh `flush mode = NEVER` ho jata hai, jisse dirty checking nahi hoti → performance fast.
+
+### ✅ Final Advice:
+
+- Read ke liye: `@Transactional(readOnly = true)`
+- Write ke liye: `@Transactional`
+- Service level par `@Transactional` use karna best practice hai.
+
+### 📑 10 Important Questions (Practice ke liye):
+
+1. Spring Data JPA me `findAll()` method by default kis transaction config ke sath chalta hai?
+2. `@Transactional(readOnly = true)` ka kya use hai?
+3. Agar kisi method me timeout set karna ho toh kaise karenge?
+4. Service layer me `@Transactional` lagane ka kya fayda hai?
+5. `@Modifying` annotation kab lagta hai?
+6. Repository ke andar ke `@Transactional` ko kab ignore kiya jata hai?
+7. Hibernate me `flush mode = NEVER` ka kya matlab hota hai?
+8. Facade pattern me transaction kaise handle hota hai?
+9. `readOnly=true` hone ke bawajood kya query update kar sakti hai?
+10. `@Transactional` aur `@Transactional(readOnly = true)` me kya difference hai?
+
+## 🔐 Locking – Spring Data JPA
+
+### 🔸 Locking kya hota hai?
+
+Agar 2 users ek hi data pe same time pe kaam kare (jaise ek read kar raha, aur doosra write), toh data corrupt ho sakta hai. Isliye hum **locking** use karte hai – taaki jab tak ek banda ka kaam pura na ho, koi dusra interfere na kare.
+
+### 🔸 Lock lagane ka tariqa Spring Data JPA me
+
+Agar kisi method pe lock lagana hai, toh simple `@Lock` annotation use karo. Ye annotation batata hai ki method kis type ka lock use karega – read ya write.
+
+### ✅ Example 1: Query method pe lock lagana
+
+```java
+interface UserRepository extends Repository<User, Long> {
+
+  @Lock(LockModeType.READ)
+  List<User> findByLastname(String lastname);
+}
+```
+
+🧠 iska matlab:  
+Jab `findByLastname()` chalega, toh us query pe **READ lock** lagega.  
+Koi aur banda usi time pe wo data **update** nahi kar payega. Sirf read chalega safely.
+
+### ✅ Example 2: CRUD method pe bhi lock lag sakta hai
+
+```java
+interface UserRepository extends Repository<User, Long> {
+
+  @Lock(LockModeType.READ)
+  List<User> findAll();
+}
+```
+
+🧠 iska matlab:  
+`findAll()` ab READ lock ke sath chalega.  
+Koi aur us data ko modify nahi kar sakta jab tak current user ka kaam complete na ho jaye.
+
+### 🔸 Common LockModeType values
+
+| Lock type                        | Kaam kya karta hai                        |
+| -------------------------------- | ----------------------------------------- |
+| `READ`                           | doosra banda update nahi kar sakta        |
+| `WRITE` (ya `PESSIMISTIC_WRITE`) | koi bhi read ya write nahi kar sakta      |
+| `OPTIMISTIC`                     | version check karta hai – advance locking |
+
+### 🔸 Kab use karna chahiye?
+
+- Jab **same record pe multiple threads** ya users ka access ho raha ho.
+- Jab **data integrity** kaafi important ho.
+- Jab **race condition** ya update clash avoid karna ho.
+
+### 📑 10 Questions (Practice ke liye):
+
+1. Locking ka main purpose kya hota hai?
+2. `@Lock(LockModeType.READ)` ka matlab kya hai?
+3. CRUD method pe lock lagana ho toh kya karna padta hai?
+4. `WRITE` lock aur `READ` lock me kya farak hai?
+5. Agar 2 threads ek saath same row ko access kare, toh `@Lock` kaise help karega?
+6. `OPTIMISTIC` locking kis use-case me sahi hoti hai?
+7. Lock lagane se performance pe kya impact padta hai?
+8. Kya `@Lock` sirf query methods ke liye hai?
+9. JPA me locking kis level pe apply hota hai – method ya entity?
+10. Kya `findAll()` method pe bhi lock lagaya ja sakta hai?
+
+## 🧩 Merging Persistence Units – Spring Data JPA
+
+### 🔸 Problem kya hota hai?
+
+Maan le tu ek **modular application** bana raha hai — matlab alag-alag modules hai like: `user`, `order`, `billing` — aur sabka apna alag persistence unit hai.
+
+But tu chah raha hai ki saare modules **ek hi persistence unit ke andar** kaam kare — taaki data consistency bani rahe aur multiple entity managers na banane padey.
+
+### 🔸 Spring iska solution kya deta hai?
+
+Spring bolta hai ki tu **MergingPersistenceUnitManager** use kar. Ye manager alag-alag persistence units ko **unke name ke basis pe merge** kar deta hai ek hi unit me.
+
+### ✅ Example 1: MergingPersistenceUnitManager ka use
+
+```xml
+<bean class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+  <property name="persistenceUnitManager">
+    <bean class="org.springframework.data.jpa.support.MergingPersistenceUnitManager" />
+  </property>
+</bean>
+```
+
+🧠 iska matlab:
+
+- Tera app agar multiple modules se persistence units le raha hai, toh ye manager **un sabko merge** karke ek hi `EntityManagerFactory` banata hai.
+- Tu easily alag-alag domain modules bana sakta hai, but data management centralized hoga.
+
+## 🔍 Classpath Scanning for @Entity Classes and Mapping Files
+
+### 🔸 Normal JPA me dikkat kya hai?
+
+Normal JPA config (without Spring) me tujhe **har ek @Entity class ko manually orm.xml me likhna padta hai**.
+
+Same goes for XML mapping files — tujhe manually define karna padta hai ki kaunsa mapping file use hoga.
+
+### 🔸 Spring isme help kaise karta hai?
+
+Spring me tu ek **ClasspathScanningPersistenceUnitPostProcessor** use kar sakta hai, jo automatically scan karega:
+
+- `@Entity` classes
+- `@MappedSuperclass` classes
+- Mapping files (jaise `UserMapping.xml`, `OrderMapping.xml`)
+
+### ✅ Example 2: Entity classes scan karne ka setup
+
+```xml
+<bean class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+  <property name="persistenceUnitPostProcessors">
+    <list>
+      <bean class="org.springframework.data.jpa.support.ClasspathScanningPersistenceUnitPostProcessor">
+        <constructor-arg value="com.acme.domain" />
+        <property name="mappingFileNamePattern" value="**/*Mapping.xml" />
+      </bean>
+    </list>
+  </property>
+</bean>
+```
+
+🧠 iska matlab:
+
+- Ye processor `com.acme.domain` package me jaake sari `@Entity` classes dhoond lega.
+- Saath me jo files `*Mapping.xml` pattern pe match ho rahi hongi, unko bhi automatically config me daal dega.
+
+### 🔸 Spring 3.1 se aur easy ho gaya
+
+Ab tu directly `LocalContainerEntityManagerFactoryBean` ke andar hi **package to scan** de sakta hai:
+
+```xml
+<property name="packagesToScan" value="com.acme.domain" />
+```
+
+📌 iska fayda: Tu XML mapping se bach jaata hai, aur sab kuch automatically scan ho jaata hai.
+
+### 📑 10 Questions (Practice ke liye):
+
+1. MergingPersistenceUnitManager ka kaam kya hai?
+2. Agar app me multiple modules ho toh persistence units kaise handle karenge?
+3. `@Entity` class ko auto-detect karne ke liye Spring kya deta hai?
+4. `ClasspathScanningPersistenceUnitPostProcessor` kya karta hai?
+5. `mappingFileNamePattern` ka kya role hai config me?
+6. Entity classes scan karne ke liye kis property ka use hota hai Spring 3.1 ke baad?
+7. Default JPA setup me `@Entity` classes kaise register karte hai?
+8. `persistenceUnitPostProcessors` kiske under likhte hai?
+9. Agar tu `billing` aur `orders` dono module me same persistence unit use karna chahe toh kya karega?
+10. `LocalContainerEntityManagerFactoryBean` kis kaam aata hai?
+
+## 🧩 Custom Repository Implementation – Spring Data JPA
+
+### 🔸 Problem kya hota hai?
+
+Spring Data me tu mostly query methods bana sakta hai like `findByEmail()`, `findByName()` etc — bina kuch coding ke.  
+**But** agar tujhe koi custom logic chahiye (like: JDBC call, native query, complex business rule)  
+→ tab tu **custom method** likh sakta hai apne repository me.
+
+## 🔧 Customization ka process – step by step
+
+### ✅ Step 1: Pehle ek **custom interface** bana
+
+```java
+interface CustomizedUserRepository {
+  void someCustomMethod(User user);
+}
+```
+
+### ✅ Step 2: Us interface ka **Impl class** bana
+
+```java
+class CustomizedUserRepositoryImpl implements CustomizedUserRepository {
+
+  @Override
+  public void someCustomMethod(User user) {
+    // Custom code likh yahan
+  }
+}
+```
+
+🧠 NOTE: `Impl` suffix mandatory hai — Spring isi se samajhta hai ki ye us interface ka implementation hai.
+
+### ✅ Step 3: Apne main repository me us interface ko extend karo
+
+```java
+interface UserRepository extends CrudRepository<User, Long>, CustomizedUserRepository {
+  // normal query methods bhi likh sakta hai
+}
+```
+
+📌 Ab jab tu `UserRepository` ko inject karega, tujhe `someCustomMethod()` bhi milega.
+
+## 🔸 Fragment Model (Recommended)
+
+Aajkal Spring recommend karta hai **fragment-based model**:
+
+- Tera repository multiple custom interfaces extend kare
+- Har interface ka alag `Impl` ho
+- Ye sab milke ek **composed repository** banate hai
+
+### ✅ Example: Multiple fragments
+
+```java
+interface HumanRepository {
+  void someHumanMethod(User user);
+}
+class HumanRepositoryImpl implements HumanRepository {
+  public void someHumanMethod(User user) { … }
+}
+
+interface ContactRepository {
+  void someContactMethod(User user);
+}
+class ContactRepositoryImpl implements ContactRepository {
+  public void someContactMethod(User user) { … }
+}
+```
+
+```java
+interface UserRepository extends CrudRepository<User, Long>, HumanRepository, ContactRepository {
+  // sab methods available ho jaenge
+}
+```
+
+## 💾 Custom `save()` override karna
+
+```java
+interface CustomizedSave<T> {
+  <S extends T> S save(S entity);
+}
+class CustomizedSaveImpl<T> implements CustomizedSave<T> {
+  public <S extends T> S save(S entity) {
+    // custom save logic
+  }
+}
+```
+
+```java
+interface UserRepository extends CrudRepository<User, Long>, CustomizedSave<User> {}
+```
+
+## 🧠 Configuration Options
+
+### ✅ 1. Custom Impl postfix change karna:
+
+```java
+@EnableJpaRepositories(repositoryImplementationPostfix = "MyPostfix")
+```
+
+- Ab Spring `CustomizedUserRepositoryMyPostfix` dhundhega instead of default `Impl`.
+
+### ✅ 2. Agar dono packages me same naam ka Impl ho toh?
+
+Spring match karta hai:
+
+- **Bean name + Impl suffix** → jo match karega wahi lega.
+- Tu `@Component("specialCustomImpl")` laga ke priority set kar sakta hai.
+
+### ✅ 3. Agar tu manual wiring kare (special beans inject karne ke liye):
+
+```java
+class MyClass {
+  MyClass(@Qualifier("userRepositoryImpl") UserRepository userRepository) {
+    …
+  }
+}
+```
+
+## 🔍 Fragment external location me ho toh?
+
+Spring bas repository ke package ke under ka scan karta hai.
+
+Agar tu external library ya dusri location se fragment la raha ho toh usko `spring.factories` me register karna padega:
+
+```
+# META-INF/spring.factories
+com.acme.search.SearchExtension = com.acme.search.DefaultSearchExtension
+```
+
+## 📖 Real-life Use Case – Search Extension
+
+```java
+interface SearchExtension<T> {
+  List<T> search(String text, Limit limit);
+}
+class DefaultSearchExtension<T> implements SearchExtension<T>, RepositoryMetadataAccess {
+  public List<T> search(String text, Limit limit) {
+    // search index call via SearchService
+  }
+}
+```
+
+→ Tu isko register karega spring.factories me  
+→ Fir kisi bhi repo me `extends SearchExtension<T>` likh ke use kar sakta hai
+
+## ⚙️ Customize Base Repository for ALL
+
+```java
+class MyRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID> {
+  private final EntityManager em;
+  public MyRepositoryImpl(JpaEntityInformation info, EntityManager em) {
+    super(info, em);
+    this.em = em;
+  }
+
+  @Override
+  @Transactional
+  public <S extends T> S save(S entity) {
+    // custom save
+  }
+}
+```
+
+```java
+@EnableJpaRepositories(repositoryBaseClass = MyRepositoryImpl.class)
+```
+
+## 📌 Bonus: Multiple EMs ho toh `JpaContext` use karo
+
+```java
+class UserRepositoryImpl implements UserRepositoryCustom {
+  private final EntityManager em;
+
+  @Autowired
+  public UserRepositoryImpl(JpaContext context) {
+    this.em = context.getEntityManagerByManagedType(User.class);
+  }
+}
+```
+
+📌 Fayda: Tu easily correct EM assign kar sakta hai — agar multiple persistence units ho toh bhi koi dikkat nahi.
+
+## 📑 10 Practice Questions (Tere Style Me)
+
+1. Custom repository method banane ke liye pehle kya define karna padta hai?
+2. Impl class ka naam kaise hona chahiye?
+3. Agar tu `save()` ko override karna chahe toh kya karega?
+4. Fragment-based repository ka kya fayda hai?
+5. Agar tu multiple custom interfaces use kare ek repository me toh kaise karega?
+6. `spring.factories` me custom fragment kaise register hota hai?
+7. Base class ko customize karne ka proper tarika kya hai?
+8. `JpaContext` kis problem ko solve karta hai?
+9. Custom implementation me manually bean inject karna ho toh kaise karega?
+10. `repositoryImplementationPostfix` ka kya use hai?
+
+## 📢 Publishing Events from Aggregate Roots – Spring Data
+
+### 🔸 Basic Concept
+
+Spring Data ke according, jab tu kisi `Entity` ko repository se save ya delete karta hai,  
+aur wo entity agar ek **aggregate root** hai (matlab top-level domain object),  
+toh tu uske through **domain events** publish kar sakta hai.
+
+### 🔸 Kyu karte hai domain event publish?
+
+- DDD (Domain Driven Design) me jab koi **important kaam** complete hota hai (jaise `OrderPlaced`, `UserRegistered`), toh hum uska **event** publish karte hai.
+- Isse system loosely coupled rehta hai aur alag module react kar sakte hai bina tightly connected huye.
+
+## ✅ Spring Data me kaise publish kare event?
+
+### Step 1️⃣: Entity ke andar ek method bana jisme `@DomainEvents` laga ho
+
+```java
+class AnAggregateRoot {
+
+  @DomainEvents
+  Collection<Object> domainEvents() {
+      // Yahan se events return honge
+      return List.of(new SomethingHappenedEvent(this));
+  }
+}
+```
+
+🧠 Iska matlab:
+
+- Jab tu is object ko save karega (ya delete), to `domainEvents()` method chalega.
+- Jo bhi event return karega, Spring usko publish karega.
+
+### Step 2️⃣: Clean-up method (optional but useful)
+
+```java
+  @AfterDomainEventPublication
+  void callbackMethod() {
+     // event list ko clear karna ho toh yahan kare
+  }
+}
+```
+
+🧠 Iska matlab:
+
+- Jaise hi saare events publish ho jaye, ye method call hoga.
+- Tu yahan list clean kar sakta hai ya log likh sakta hai ya kuch aur.
+
+## 🔁 Ye methods kab chalega?
+
+Jab tu Spring Data repository ke ye methods call kare:
+
+| Method               | Event Triggered?                                        |
+| -------------------- | ------------------------------------------------------- |
+| `save()`             | ✅ YES                                                  |
+| `saveAll()`          | ✅ YES                                                  |
+| `delete()`           | ✅ YES                                                  |
+| `deleteAll()`        | ✅ YES                                                  |
+| `deleteAllInBatch()` | ✅ YES                                                  |
+| `deleteInBatch()`    | ✅ YES                                                  |
+| `deleteById()`       | ❌ NO (kyunki wo aggregate instance load hi nahi karta) |
+
+🧠 `deleteById()` se event publish nahi hoga, kyunki usme object ki instance hoti hi nahi.
+
+## 📑 Practice Questions (tere style me):
+
+1. `@DomainEvents` kis method pe lagate hai?
+2. `domainEvents()` method kya return karta hai?
+3. `@AfterDomainEventPublication` ka use kya hai?
+4. `deleteById()` se event publish kyu nahi hota?
+5. Kaunse repository methods se domain events publish hote hai?
+6. Agar tu `List<Object>` ke bajaye single event return kare to chalega?
+7. `@DomainEvents` method me arguments hone chahiye kya?
+8. Agar event publish hone ke baad kuch clean karna ho toh kaunsa method use karega?
+9. Event system use karne ka fayda kya hai DDD ke perspective se?
+10. Kya ye event Spring ApplicationEvent ke sath integrate ho sakta hai?
+
+## ❓ Null Handling in Spring Data JPA
+
+### 🔸 Basic Idea:
+
+Spring Data 2.0 se CRUD aur query methods me **null handle karne ka system clean aur safe ho gaya hai**.  
+Ab tu **Optional**, **@Nullable**, aur **null-safe defaults** use kar sakta hai for better control and safer code.
+
+### ✅ Query Method Return Types – kya kya return ho sakta hai?
+
+| Return Type             | Jab result nahi milta to?            |
+| ----------------------- | ------------------------------------ |
+| `Optional<T>`           | returns `Optional.empty()`           |
+| `@Nullable T`           | returns `null`                       |
+| `T` (non-nullable)      | throws exception if result not found |
+| `List<T>`               | returns empty list `[]`              |
+| `Stream<T>`             | returns empty stream                 |
+| `Set<T>` or other coll. | returns empty collection             |
+
+### ✅ Popular supported wrappers:
+
+- `java.util.Optional` → ✅ recommended
+- `com.google.common.base.Optional`
+- `scala.Option`
+- `io.vavr.control.Option`
+
+📌 But agar tu wrapper use nahi karta, to Spring null ya exception return karega based on annotations.
+
+## ⚠️ Important Annotations for Null Handling
+
+### 🔹 `@NonNullApi` → **Package level pe lagta hai**
+
+```java
+@org.springframework.lang.NonNullApi
+package com.acme;
+```
+
+🧠 iska matlab:
+
+- Package ke andar jitne bhi method return type/parameters hai — unka **default non-null** maana jaayega.
+- Agar koi method `null` return karega, to **runtime exception** throw hoga.
+
+### 🔹 `@NonNull` → individual param ya method pe laga sakta hai
+
+(But mostly zarurat nahi padti agar tu `@NonNullApi` already laga chuka hai)
+
+### 🔹 `@Nullable` → jab explicitly tu batana chahe ki null allowed hai
+
+```java
+@Nullable
+User findByEmailAddress(@Nullable EmailAddress email);
+```
+
+🧠 iska matlab:
+
+- null query param allowed hai
+- agar result nahi mila to `null` return hoga — no exception
+
+## ✅ Practical Example – Full Setup
+
+```java
+package com.acme;
+
+import org.springframework.lang.Nullable;
+
+interface UserRepository extends Repository<User, Long> {
+
+  User getByEmailAddress(EmailAddress emailAddress);
+
+  @Nullable
+  User findByEmailAddress(@Nullable EmailAddress emailAddress);
+
+  Optional<User> findOptionalByEmailAddress(EmailAddress emailAddress);
+}
+```
+
+### 🔍 Breakdown:
+
+1. **getByEmailAddress(...)**  
+   → Non-null by default  
+   → `null` return hua to exception  
+   → `null` param diya to `IllegalArgumentException`
+
+2. **findByEmailAddress(...) with @Nullable**  
+   → `null` param allowed  
+   → `null` return bhi allowed
+
+3. **findOptionalByEmailAddress(...)**  
+   → param `null` ho toh exception  
+   → result na mile to `Optional.empty()` return
+
+## 🤖 Kotlin Support
+
+Kotlin me nullability language ka part hota hai. Tu aise likhta hai:
+
+```kotlin
+interface UserRepository : Repository<User, String> {
+  fun findByUsername(username: String): User        // non-null param, non-null result
+  fun findByFirstname(firstname: String?): User?    // param aur result dono nullable
+}
+```
+
+🧠 Kotlin automatically compiler-level check karta hai:
+
+- null pass karna ya return karna allowed hai ya nahi
+
+📦 Make sure `kotlin-reflect` jar laga ho — warna runtime pe null metadata kaam nahi karega.
+
+## 📑 Practice Questions (tere style me):
+
+1. Agar tu `Optional<User>` return karega to result na mile to kya milega?
+2. `@NonNullApi` ka kya use hai?
+3. `@Nullable` kis case me use karte hai?
+4. Agar tu `T` return kare bina wrapper ke, to result null ho to kya hoga?
+5. `deleteById()` me null return ka chance hai kya?
+6. Tu Kotlin me `User?` likhta hai to iska matlab kya hota hai?
+7. Spring Data me `List<T>` agar result na mile to kya return karega?
+8. `@Nullable` parameter aur return me dono use karne se kya fayda hai?
+9. Spring Data me null-safe coding ke liye best practices kya hai?
+10. Tu `Optional<T>` kab prefer karega `@Nullable` ke jagah?
+
+## 📘 Spring Data Web Support — Book Style Notes
+
+## 🔹 1. PagedModel Output (Pagination with metadata)
+
+### Controller Code:
+
+```java
+@GetMapping("/page")
+PagedModel<?> page(Pageable pageable) {
+  return new PagedModel<>(repository.findAll(pageable));
+}
+```
+
+### JSON Output:
+
+```json
+{
+  "content": [ … ],      // data list
+  "page": {
+    "size": 20,
+    "totalElements": 30,
+    "totalPages": 2,
+    "number": 0
+  }
+}
+```
+
+🧠 Page ka metadata bhi JSON me aata hai → size, total pages, page number.
+
+### ✅ Globally simplified rendering enable karna:
+
+```java
+@EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
+class MyConfiguration { }
+```
+
+🧠 Isse tu controller me `Page` hi return karega, but output JSON me **PagedModel jaisa** milega.
+
+```java
+@GetMapping("/page")
+Page<?> page(Pageable pageable) {
+  return repository.findAll(pageable);
+}
+```
+
+## 🔹 2. Hypermedia Support (HAL, links, navigation)
+
+### Controller with Assembler:
+
+```java
+@GetMapping("/people")
+HttpEntity<PagedModel<Person>> people(Pageable pageable,
+  PagedResourcesAssembler<Person> assembler) {
+
+  Page<Person> people = repository.findAll(pageable);
+  return ResponseEntity.ok(assembler.toModel(people));
+}
+```
+
+### JSON Output with links:
+
+```json
+{
+  "links": [
+    { "rel": "next", "href": "http://localhost:8080/people?page=1&size=20" }
+  ],
+  "content": [ … ],
+  "page": {
+    "size": 20,
+    "totalElements": 30,
+    "totalPages": 2,
+    "number": 0
+  }
+}
+```
+
+🧠 `PagedResourcesAssembler.toModel()`:
+
+- page → metadata deta hai
+- links → prev, next, self generate karta hai
+- content → Page ka actual data
+
+🔔 Hypermedia enable karne ke liye:
+
+```java
+@EnableHypermediaSupport(type = HypermediaType.HAL)
+```
+
+## 🔹 3. Spring Data Jackson Modules (geo types, etc.)
+
+Agar tu geo types use kare (like Point, Circle), to ye classes:
+
+- `org.springframework.data.geo.Distance`
+- `org.springframework.data.geo.Point`
+- `Circle`, `Box`, `Polygon`
+
+🧠 Automatically Jackson ke ObjectMapper me register ho jaate hai agar:
+
+- Web support enable hai
+- Jackson ObjectMapper available hai
+
+## 🔹 4. Web Data Binding using JSONPath / XPath (Projections)
+
+### Projection Interface:
+
+```java
+@ProjectedPayload
+public interface UserPayload {
+  @XBRead("//firstname")
+  @JsonPath("$..firstname")
+  String getFirstname();
+
+  @XBRead("/lastname")
+  @JsonPath({ "$.lastname", "$.user.lastname" })
+  String getLastname();
+}
+```
+
+🧠 Isse tu request payload se **dynamically firstname/lastname extract** kar sakta hai.
+
+Use cases:
+
+## 📘 Spring Data JPA – Query Method Keywords
+
+## 🔹 1. Subject Keywords – Method kis type ka kaam karega?
+
+Ye batate hain ki tumhara method **kya kaam karega** – find, count, delete, exists, etc.
+
+| Keyword      | Kaam kya karta hai                | Example                        |
+| ------------ | --------------------------------- | ------------------------------ |
+| `find…By`    | Entity ya list return karta hai   | `findByName()`                 |
+| `read…By`    | Same as find                      | `readByEmail()`                |
+| `get…By`     | Same as find                      | `getByUsername()`              |
+| `query…By`   | Same as find                      | `queryByCity()`                |
+| `search…By`  | Same as find                      | `searchByPhone()`              |
+| `stream…By`  | Stream return karega              | `streamByType()`               |
+| `exists…By`  | `boolean` return karega           | `existsByEmail()`              |
+| `count…By`   | `long` ya `int` return karega     | `countByStatus()`              |
+| `delete…By`  | Delete karega, void/int return    | `deleteById()`                 |
+| `remove…By`  | Same as delete                    | `removeByToken()`              |
+| `…First<N>…` | N results limit karega            | `findFirst3ByOrderByNameAsc()` |
+| `…Top<N>…`   | Same as First                     | `findTop5ByAgeGreaterThan(25)` |
+| `…Distinct…` | Duplicate results hata ke laayega | `findDistinctByCity()`         |
+
+## 🔹 2. Reserved Methods (CrudRepository ke predefined methods)
+
+| Method Name          | Kaam kya karta hai           |
+| -------------------- | ---------------------------- |
+| `deleteById(id)`     | Ek record delete             |
+| `deleteAllById(ids)` | Multiple record delete       |
+| `existsById(id)`     | boolean check karta hai      |
+| `findAllById(ids)`   | List of matched IDs          |
+| `findById(id)`       | Optional<T> return karta hai |
+
+## 🔹 3. Predicate Keywords – WHERE clause banate hain
+
+Ye keywords tumhare method ke name me likhe jaate hain jo query ka condition set karte hain.
+
+### ✅ Logical Conditions
+
+| Keyword | Example                 |
+| ------- | ----------------------- |
+| `And`   | `findByCityAndStatus()` |
+| `Or`    | `findByAgeOrCity()`     |
+
+### ✅ Date Conditions
+
+| Keyword               | Example                        |
+| --------------------- | ------------------------------ |
+| `After` / `IsAfter`   | `findByCreatedDateAfter(...)`  |
+| `Before` / `IsBefore` | `findByCreatedDateBefore(...)` |
+
+### ✅ String Conditions
+
+| Keyword                  | Kaam        | Example                          |
+| ------------------------ | ----------- | -------------------------------- |
+| `Containing`, `Contains` | LIKE %...%  | `findByNameContaining("vi")`     |
+| `StartingWith`           | LIKE "...%" | `findByNameStartingWith("Ra")`   |
+| `EndingWith`             | LIKE "%..." | `findByNameEndingWith("sh")`     |
+| `Like`                   | Custom LIKE | `findByEmailLike("%@gmail.com")` |
+
+### ✅ Comparison Operators
+
+| Keyword            | Meaning | Example                             |
+| ------------------ | ------- | ----------------------------------- |
+| `GreaterThan`      | >       | `findByAgeGreaterThan(18)`          |
+| `GreaterThanEqual` | >=      | `findByAgeGreaterThanEqual(18)`     |
+| `LessThan`         | <       | `findBySalaryLessThan(50000)`       |
+| `LessThanEqual`    | <=      | `findBySalaryLessThanEqual(100000)` |
+
+### ✅ Null / Empty Checks
+
+| Keyword                  | Example                   |
+| ------------------------ | ------------------------- |
+| `IsNull`, `Null`         | `findByEmailIsNull()`     |
+| `IsNotNull`, `NotNull`   | `findByMobileIsNotNull()` |
+| `IsEmpty`, `Empty`       | `findByRolesIsEmpty()`    |
+| `IsNotEmpty`, `NotEmpty` | `findByRolesIsNotEmpty()` |
+
+### ✅ Boolean Checks
+
+| Keyword            | Example                 |
+| ------------------ | ----------------------- |
+| `True`, `IsTrue`   | `findByActiveIsTrue()`  |
+| `False`, `IsFalse` | `findByActiveIsFalse()` |
+
+### ✅ Collection & Range
+
+| Keyword                | Example                      |
+| ---------------------- | ---------------------------- |
+| `In`, `IsIn`           | `findByCityIn(List<String>)` |
+| `NotIn`, `IsNotIn`     | `findByCityNotIn(...)`       |
+| `Between`, `IsBetween` | `findByAgeBetween(20, 30)`   |
+
+### ✅ Geospatial (if supported)
+
+| Keyword              | Description                      |
+| -------------------- | -------------------------------- |
+| `Near`, `IsNear`     | Find by coordinates near a point |
+| `Within`, `IsWithin` | Check inside a geo shape         |
+
+## 🔹 4. Modifier Keywords
+
+Modifiers jo comparison ke behavior ko modify karte hain.
+
+| Modifier                     | Kaam kya karta hai                 | Example                                        |
+| ---------------------------- | ---------------------------------- | ---------------------------------------------- |
+| `IgnoreCase`, `IgnoringCase` | Case-insensitive match             | `findByEmailIgnoreCase(...)`                   |
+| `AllIgnoreCase`              | Sabhi string fields me ignore case | `findByFirstNameAndLastNameAllIgnoreCase(...)` |
+| `OrderBy<Field>Asc/Desc`     | Sorting ke liye                    | `findByCityOrderByNameAsc()`                   |
+
+## ✅ Examples – Full method names
+
+```java
+List<User> findTop3ByAgeGreaterThanOrderByNameAsc(int age);
+
+Optional<User> findByUsernameIgnoreCase(String username);
+
+boolean existsByEmail(String email);
+
+long countByStatus(String status);
+
+void deleteByCity(String city);
+```
+
+## 📑 Practice Questions (Tere Style Me)
+
+1. `findFirst5ByOrderByAgeDesc()` ka kya karega?
+2. `findByUsernameContainingIgnoreCase()` ka meaning kya hai?
+3. `existsByMobile()` kis type ka result dega?
+4. `countByRole()` kis return type ka method hota hai?
+5. `findByDobBetween()` me kya pass karte hai?
+6. `findByEmailIsNull()` aur `IsNotNull()` ka use kab karte hai?
+7. `OrderBy…Asc/Desc` kis part me likhte hai method name ke?
+8. Agar method `findByCityIn(...)` likha ho to parameter me kya dena padega?
+9. `deleteByStatus()` method kya return karega?
+10. `findTop3ByNameStartsWith("Ra")` kis type ka result dega?
+
+## 📘 Repository Query Return Types – Spring Data JPA
+
+## 🔹 Basic Idea:
+
+Spring Data me tu jab query method likhta hai (`findByXyz()`), to uska **return type important hota hai**.
+
+Spring automatically decide karta hai:
+
+- **Single result milega ya list**
+- **Optional hona chahiye ya nahi**
+- **Stream ya Page chahiye**
+- **Reactive result chahiye ya synchronous**
+
+## ✅ Table: Common Return Types – Explanation ke sath
+
+| Return Type                | Kya karta hai                            | Special Notes                     |
+| -------------------------- | ---------------------------------------- | --------------------------------- |
+| `void`                     | Return nahi karta kuch                   | mostly delete/update              |
+| `T`                        | 1 entity return karega                   | Agar 1 se zyada mila → exception  |
+| `Optional<T>`              | 0 ya 1 result                            | Best for null-safe check          |
+| `List<T>`, `Collection<T>` | List of results                          | Never null, empty list if nothing |
+| `Iterator<T>`              | Java Iterator                            | rarely used                       |
+| `Stream<T>`                | Lazy stream of data                      | Close karna padta hai manually    |
+| `Streamable<T>`            | Advanced iterable                        | Map, filter support karta hai     |
+| `Page<T>`                  | List with metadata (page, total etc.)    | `Pageable` parameter mandatory    |
+| `Slice<T>`                 | List with info: "next page hai ya nahi?" | Lightweight than Page             |
+| `Window<T>`                | For scrollable results                   | Needs ScrollPosition param        |
+| `Future<T>`                | Async result (Spring @Async)             | Synchronous call nahi chalega     |
+| `CompletableFuture<T>`     | Java 8 async                             | Needs `@Async`                    |
+| `Mono<T>`                  | 0 or 1 result (Reactive)                 | Reactor Project                   |
+| `Flux<T>`                  | 0 or many result (Reactive)              | Stream of data                    |
+| `Single<T>`                | RxJava: exactly 1 result                 | Error if empty/multiple           |
+| `Maybe<T>`                 | RxJava: 0 or 1                           | Like Optional                     |
+| `Flowable<T>`              | RxJava: stream of data                   | Like Flux                         |
+| `GeoResult<T>`             | Result with distance info                | Geospatial only                   |
+| `GeoResults<T>`            | List of GeoResult<T>                     | Only if store supports geo        |
+| `GeoPage<T>`               | Page + geo info                          | Geo + Paging                      |
+
+## 🔹 Examples:
+
+```java
+Optional<User> findByEmail(String email);
+// return Optional.empty() if not found
+
+List<User> findByAgeGreaterThan(int age);
+// return empty list if none
+
+Page<User> findByCity(String city, Pageable pageable);
+// return paged result with metadata
+
+Stream<Product> streamByType(String type);
+// stream result (lazy), needs to be closed
+
+Mono<User> findById(String id);
+// for reactive MongoDB or R2DBC
+```
+
+## ⚠️ Important Notes:
+
+1. **T** or `Optional<T>` → agar 1 se zyada result mila to exception aayega.
+2. `List`, `Page`, `Stream`, etc. → kabhi `null` nahi dete. Agar kuch nahi mila to empty list/stream return hota hai.
+3. **Reactive return types** (`Mono`, `Flux`) → tabhi use karo jab tu reactive repository use kar raha ho.
+4. `Pageable` aur `ScrollPosition` jaisa parameter compulsory hai jab tu `Page<T>` ya `Window<T>` return type use karta hai.
+
+## 📑 Practice Questions (tere style me):
+
+1. `Optional<User> findByEmail(...)` me agar user na mile to kya hoga?
+
+## 📘 Spring Data JPA – FAQ Notes (Common + Auditing)
+
+### ❓ Q1: Mujhe `JpaRepository` ke methods ka detailed log chahiye, jaise kya call ho raha hai, kya return ho raha hai. Kaise karu?
+
+👉 Answer:  
+Use karo **`CustomizableTraceInterceptor`** (Spring AOP based logging).
+
+### ✅ XML Config Example:
+
+```xml
+<bean id="customizableTraceInterceptor"
+      class="org.springframework.aop.interceptor.CustomizableTraceInterceptor">
+  <property name="enterMessage" value="Entering $[methodName]($[arguments])"/>
+  <property name="exitMessage" value="Leaving $[methodName](): $[returnValue]"/>
+</bean>
+
+<aop:config>
+  <aop:advisor advice-ref="customizableTraceInterceptor"
+    pointcut="execution(public * org.springframework.data.jpa.repository.JpaRepository+.*(..))"/>
+</aop:config>
+```
+
+🧠 Iska matlab:
+
+- Jab bhi koi `JpaRepository` ka method chalega (like `save()`, `findById()`), to tu log dekh payega:
+  ```
+  Entering findById(1)
+  Leaving findById(): Optional[User]
+  ```
+
+### ❓ Q2: Meri DB already auto set kar rahi hai `created_date`, `modified_date`, to Spring Data auditing se wo override ho ja raha. Usko kaise band karu?
+
+👉 Answer:  
+Use karo `<auditing:set-dates="false">` — jo Spring se auto set hone wale dates ko disable karega.
+
+### ✅ XML Config Example:
+
+```xml
+<jpa:auditing set-dates="false" />
+```
+
+🧠 Iska matlab:
+
+- Tu still `@CreatedDate` aur `@LastModifiedDate` use kar raha hoga,
+- But Spring Data un values ko **set nahi karega**, DB khud hi handle karega (e.g., `DEFAULT CURRENT_TIMESTAMP`).
+
+## 📑 Bonus Tips (Tere style me):
+
+- Agar tu logging Spring Boot me karna chahe to `logging.level.org.springframework.data=DEBUG` bhi try kar sakta hai.
+- Agar annotation-based auditing disable karna chahe selectively, to `@CreatedDate` ya `@LastModifiedDate` use hi mat kar.
+
+## 💡 Practice Short Qs (revision):
+
+1. `CustomizableTraceInterceptor` kya karta hai?
+2. Logging messages me `$[methodName]` ka matlab kya hai?
+3. AOP pointcut me `JpaRepository+` ka kya matlab hai?
+4. Agar DB khud hi date set kar raha hai, to Spring ko rokne ke liye kya kare?
+5. `@CreatedDate` ko use kiya hai but wo overwrite ho raha, solution?
